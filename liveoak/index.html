@@ -193,31 +193,33 @@
             </section>
 
             <section>
-                <h2>Example of JS code in HTML5 page</h2>
-                <p>
+                <h3>Example of JS code in HTML5 page</h3>
+                <pre>
                     var liveOak = LiveOak({
-                    auth: {
-                    clientId: 'test-app',
-                    clientSecret: 'password',
-                    onload: 'check-sso',
-                    success: authSuccess,
-                    error: authError
-                    }
+                        auth: {
+                            clientId: 'test-app',
+                            clientSecret: 'password',
+                            onload: 'check-sso',
+                            success: authSuccess,
+                            error: authError
+                        }
                     });
 
                     liveOak.auth.init();
-                </p>
+                </pre>
             </section>
 
             <section>
-                <h2>Authenticated user</h2>
-                <p>Signed JWT access token available in "window.oauth.init"</p>
-                <p>Requests to LiveOak sent with Javascript SDK will contain header: Authorization: Bearer &lt;access token&gt;</p>
+                <h3>Authenticated user</h3>
+                <ul>
+                    <li>Signed JWT access token available in "window.oauth.init"</li>
+                    <li>Requests to LiveOak sent with Javascript SDK will contain header: Authorization: Bearer &lt;access token&gt;</li>
+                </ul>
             </section>
 
             <section>
-                <h2>Example</h2>
-                <p>"auth" application</p>
+                <h3>Auth Example</h3>
+                <img src="images/arrown-down.svg"/>
                 <p>Sources at <a href="https://github.com/liveoak-io/liveoak-examples/tree/master/auth">https://github.com/liveoak-io/liveoak-examples/tree/master/auth</a></p>
             </section>
         </section>
@@ -229,7 +231,7 @@
 
         <section>
             <section>
-                <h2>AuthHandler</h2>
+                <h3>AuthHandler</h3>
                 <ul>
                     <li>retrieves JWT access token from HTTP header</li>
                     <li>Sends resource request to 'auth' resource with usage of Client to /auth/token-info/&lt;access_token&gt;</li>
@@ -237,32 +239,34 @@
             </section>
 
             <section>
-                <h2>Auth resource</h2>
-                <p>After receiving request:
+                <h3>Auth resource</h3>
+                <ul>
+                    <li>After receiving request:</li>
                     <ul>
                         <li>verifies signature of access token</li>
                         <li>sends parsed info about authenticated user from token</li>
                     </ul>
-                </p>
+                </ul>
             </section>
 
             <section>
-                <h2>AuthHandler - continue</h2>
+                <h3>AuthHandler - continue</h3>
                 <p>
                     establishes SecurityContext and continues with request (handler chain)
                 </p>
             </section>
 
             <section>
-                <h2>SecurityContext</h2>
+                <h3>SecurityContext</h3>
                 <ul>
                     <li>Part of LiveOak SPI. Accessible from RequestContext</li>
                     <li>Contract between authentication and authorization</li>
                 </ul>
             </section>
 
-            <section data-markdown>
-                <script type="text/template">
+            <section>
+                <h3>SecurityContext interface</h3>
+                <pre>
                     public interface SecurityContext {
                         String getSubject();
                         boolean isAuthenticated();
@@ -271,7 +275,7 @@
                         String getRealm();
                         long lastVerified();
                     }
-                </script>
+               </pre>
             </section>
         </section>
 
@@ -313,7 +317,8 @@
             </section>
 
             <section>
-                <h2>Configuration example</h2>
+                <h3>Configuration example</h3>
+                <pre>
                 "policies": [
                     {
                         "policyName" : "URIPolicy",
@@ -325,90 +330,100 @@
                         "includedResourcePrefixes": [ "/storage" ]
                     }
                 ]
+                </pre>
             </section>
         </section>
 
         <section>
             <section>
                 <h2>URIPolicy</h2>
-                <p>Implementation based on Drools</p>
-                <p>Adding URI rules in configuration, which are internally converted to Drools rules</p>
-                <p>Allows to authorize based on various characteristics of resourceRequest itself</p>
                 <ul>
-                    <li>request URI</li>
-                    <li>request parameters</li>
-                    <li>request body (resourceState)</li>
+                    <li>Implementation based on Drools</li>
+                    <li>Adding URI rules in configuration, which are internally converted to Drools rules</li>
+                    <li>Allows to authorize based on various characteristics of resourceRequest itself
+                        <ul>
+                            <li>request URI</li>
+                            <li>request parameters</li>
+                            <li>request body (resourceState)</li>
+                        </ul>
+                    </li>
+                    <li>not just "URIPolicy" as it allows to create conditions based on anything in request</li>
                 </ul>
-                <p>not just "URIPolicy" as it allows to create conditions based on anything in request</p>
             </section>
 
             <section>
-                <h2>Example of rule</h2>
-                {
-                    "priority": 1,
-                    "uriPattern": "/app/(.*)[.](html|css|js|png)",
-                    "requestType": "READ",
-                    "allowedUsers": "'*'"
-                },
+                <h3>Example of rule</h3>
+                <pre>
+                    {
+                        "priority": 1,
+                        "uriPattern": "/app/(.*)[.](html|css|js|png)",
+                        "requestType": "READ",
+                        "allowedUsers": "'*'"
+                    },
+                </pre>
             </section>
 
             <section>
-                <h2>Example 2</h2>
-                {
-                    "priority": 1,
-                    "uriPattern": "/storage*",
-                    "requestType": "CREATE",
-                    "queryParamsCondition": "$requestState.getProperty('user') ==  $securityContext.subject",
-                    "allowedRoles": "'test-app/user'"
-                },
+                <h3>Example 2</h3>
+                <pre>
+{
+    "priority": 1,
+    "uriPattern": "/storage*",
+    "requestType": "CREATE",
+    "queryParamsCondition": "$requestState.getProperty('user') ==  $securityContext.subject",
+    "allowedRoles": "'test-app/user'"
+},
+                </pre>
             </section>
         </section>
 
         <section>
             <section>
                 <h2>ACLPolicy</h2>
-                <p>Authorize based on ACL attached to resource itself</p>
-                <p>Using 'Client' to retrieve resource first</p>
+                <ul>
+                    <li>Authorize based on ACL attached to resource itself</li>
+                    <li>Using 'Client' to retrieve resource first</li>
+                </ul>
             </section>
 
             <section>
-                <h2>Example</h2>
+                <h3>Example</h3>
                 <p>Rule: </p>
-                <p>
+                <pre>
                     {
                         "requestType": "UPDATE",
                         "allowedUserAttribute": "user"
                     }
-                </p>
+                </pre>
                 <p>Resource: </p>
-                <p>
+                <pre>
                     {
                         "name": "myTodo",
                         "something": "foo",
                         "user": "john"
                     }
-                </p>
+                </pre>
                 This resource can be updated just by user "john"
             </section>
 
             <section>
-                <h2>Example 2</h2>
+                <h3>Example 2</h3>
                 <p>Rule: </p>
-                <p>
+                <pre>
                     {
                         "requestType": "UPDATE",
                         "allowedUserAttribute": "user",
                         "allowedRolesAttribute": "roles"
                     },
-                </p>
+                </pre>
                 <p>Resource:</p>
-                <p>
+                <pre>
                     {
                         "name": "todo2",
                         "user": "joe",
                         "roles": ["foo", "bar"]
                     }
-                </p>
+                </pre>
                 <p>Either user "john" or any user with role "foo" or role "bar" is authorized</p>
             </section>
         </section>
@@ -416,6 +431,7 @@
         <section>
             <section>
                 <h2>TodoMVC example</h2>
+                <img src="images/arrown-down.svg"/>
                 <p>Sources at <a href="https://github.com/liveoak-io/liveoak-examples/tree/master/todomvc">https://github.com/liveoak-io/liveoak-examples/tree/master/todomvc</a></p>
             </section>
 

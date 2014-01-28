@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>LiveOak</title>
+
+    <meta name="description" content="...">
+    <meta name="author" content="Stian Thorgersen">
+
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/liveoak.css" id="theme">
+
+    <link href='fonts/fonts.css' rel='stylesheet'
+          type='text/css'>
+
+    <!-- For syntax highlighting -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+        document.write('<link rel="stylesheet" href="css/print/' + ( window.location.search.match(/print-pdf/gi) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">');
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+
+<div class="reveal">
+    <div class="slides">
+
+        <section>
+            <h1>LiveOak Security</h1>
+        </section>
+
+        <section>
+            <h2>Overview</h2>
+            <img src="images/overview.svg"/>
+        </section>
+
+        <section>
+            <h2>Resources</h2>
+            <ul>
+                <li><b>auth</b> - Authentication. Integration with Keycloak</li>
+                <li><b>authz</b> - Authorization of resource requests. Delegates the "work" to concrete policies</li>
+                <li><b>policy resources</b> - Concrete implementations of policies for request authorization</li>
+            </ul>
+        </section>
+
+        <section>
+            <h1>Auth</h1>
+
+            <p>Powered by Keycloak</p>
+        </section>
+
+        <section>
+            <h2>Model</h2>
+            <img src="images/keycloak-model.svg"/>
+        </section>
+
+        <section>
+            <h2>Auth resource</h2>
+            <ul>
+                <li>Starts embedded Keycloak instance during bootstrap</li>
+                <li>Keycloak running on Undertow server (localhost:8383 by default)</li>
+                <li>Creates "admin" realm and "default" realm including users, roles, application</li>
+            </ul>
+        </section>
+
+        <section>
+            <section>
+                <h2>Integration</h2>
+
+                <p>Store and Endpoints</p>
+
+                <img src="images/arrown-down.svg"/>
+
+                <p>JPA/H2 and RestEasy</p>
+
+                <div class="fragment">
+                    <img src="images/arrown-down.svg"/>
+
+                    <p>Mongo and Resources</p>
+                </div>
+            </section>
+
+            <section>
+                <h2>Store</h2>
+
+                <div class="space-top col-3"><p>Model SPI</p></div>
+                <div class="space-top col-3"><p>We already have<br/> the basics</p></div>
+                <div class="space-top col-3"><p>Doesn't depend<br/>on JAX-RS</p></div>
+            </section>
+
+            <section>
+                <h2>Endpoints</h2>
+
+                <div class="space-top col-3">
+                    <h3>OAuth</h3>
+
+                    <p>Hard</p></div>
+                <div class="space-top col-3">
+                    <h3>Forms</h3>
+
+                    <p>Medium</p></div>
+                <div class="space-top col-3">
+                    <h3>Config</h3>
+
+                    <p>Easy</p></div>
+            </section>
+
+            <section>
+                <h2>Admin</h2>
+
+                <p>JAX-RS endpoints pretty much just wraps model</p>
+
+                <div class="fragment">
+                    <img src="images/arrown-down.svg"/>
+
+                    <p>Easy</p>
+                </div>
+            </section>
+
+            <section>
+                <h2>Forms</h2>
+
+                <p>Would need a bit of refactoring</p>
+
+                <div class="fragment">
+                    <img src="images/arrown-down.svg"/>
+
+                    <p>Medium</p>
+                </div>
+            </section>
+
+            <section>
+                <h2>OAuth</h2>
+
+                <p>Depends a fair amount on JAX-RS</p>
+
+                <div class="fragment">
+                    <img src="images/arrown-down.svg"/>
+
+                    <p>Harder</p>
+                </div>
+            </section>
+
+            <section>
+                <h2>Alternatives</h2>
+
+                <div class="space-top col-3">
+                    <h3>Core</h3>
+
+                    <p>Keycloak core<br/>without JAX-RS</p>
+                </div>
+
+                <div class="space-top col-3">
+                    <h3>JAX-RS</h3>
+
+                    <p>LiveOak wrapper<br/>for JAX-RS</p>
+                </div>
+
+                <div class="space-top col-3">
+                    <h3>RestEasy</h3>
+
+                    <p>RestEasy has Netty integration</p>
+                </div>
+
+                <div class="clearfix"></div>
+
+                <div class="space-top fragment">
+                    <p>Or a combination?</p>
+                </div>
+            </section>
+        </section>
+
+        <section>
+            <section>
+                <h2>Javascript SDK</h2>
+                <ul>
+                    <li>Handles client-side of OAuth2 flow between HTML5 user application (client) and Keycloak (server)</li>
+                    <li>sources in clients/javascript/src/main/javascipt/auth/client.js</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>Example of JS code in HTML5 page</h2>
+                <p>
+                    var liveOak = LiveOak({
+                    auth: {
+                    clientId: 'test-app',
+                    clientSecret: 'password',
+                    onload: 'check-sso',
+                    success: authSuccess,
+                    error: authError
+                    }
+                    });
+
+                    liveOak.auth.init();
+                </p>
+            </section>
+
+            <section>
+                <h2>Authenticated user</h2>
+                <p>Signed JWT access token available in "window.oauth.init"</p>
+                <p>Requests to LiveOak sent with Javascript SDK will contain header: Authorization: Bearer &lt;access token&gt;</p>
+            </section>
+
+            <section>
+                <h2>Example</h2>
+                <p>"auth" application</p>
+                <p>Sources at <a href="https://github.com/liveoak-io/liveoak-examples/tree/master/auth">https://github.com/liveoak-io/liveoak-examples/tree/master/auth</a></p>
+            </section>
+        </section>
+
+        <section>
+            <h2>Request processing in LiveOak</h2>
+            <img src="images/overview.svg"/>
+        </section>
+
+        <section>
+            <section>
+                <h2>AuthHandler</h2>
+                <ul>
+                    <li>retrieves JWT access token from HTTP header</li>
+                    <li>Sends resource request to 'auth' resource with usage of Client to /auth/token-info/&lt;access_token&gt;</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>Auth resource</h2>
+                <p>After receiving request:
+                    <ul>
+                        <li>verifies signature of access token</li>
+                        <li>sends parsed info about authenticated user from token</li>
+                    </ul>
+                </p>
+            </section>
+
+            <section>
+                <h2>AuthHandler - continue</h2>
+                <p>
+                    establishes SecurityContext and continues with request (handler chain)
+                </p>
+            </section>
+
+            <section>
+                <h2>SecurityContext</h2>
+                <ul>
+                    <li>Part of LiveOak SPI. Accessible from RequestContext</li>
+                    <li>Contract between authentication and authorization</li>
+                </ul>
+            </section>
+
+            <section data-markdown>
+                <script type="text/template">
+                    public interface SecurityContext {
+                        String getSubject();
+                        boolean isAuthenticated();
+                        Set&lt;String&gt; getRoles();
+                        boolean hasRole(String role);
+                        String getRealm();
+                        long lastVerified();
+                    }
+                </script>
+            </section>
+        </section>
+
+        <section>
+            <h1>Authz</h1>
+            <p>Powered by Policies</p>
+        </section>
+
+        <section>
+            <h2>AuthzHandler</h2>
+            <ul>
+                <li>send authorization request to "authz" resource to verify if current request is authorized</li>
+                <li>Assumption: SecurityContext is already established and filled by AuthHandler (or other handler/interceptor)</li>
+            </ul>
+        </section>
+
+        <section>
+            <section>
+                <h2>Authz resource</h2>
+                <p>delegates decision to one ore more policies</p>
+            </section>
+
+            <section>
+                <p>Policies are invoked over REST (async)</p>
+                <p>A policy can include/exclude specific resources</p>
+            </section>
+            <section>
+                <h2>Policy Decisions</h2>
+
+                <div class="space-top col-3"><h3>Accept</h3></div>
+                <div class="space-top col-3"><h3>Reject</h3></div>
+                <div class="space-top col-3"><h3>Ignore</h3></div>
+
+                <div class="clearfix"></div>
+
+                <div class="space-top">
+                    <p>Accepted if at least one accept and no rejects</p>
+                </div>
+            </section>
+
+            <section>
+                <h2>Configuration example</h2>
+                "policies": [
+                    {
+                        "policyName" : "URIPolicy",
+                        "policyResourceEndpoint": "uriPolicy/authzCheck"
+                    },
+                    {
+                        "policyName" : "ACLPolicy",
+                        "policyResourceEndpoint": "aclPolicy/authzCheck",
+                        "includedResourcePrefixes": [ "/storage" ]
+                    }
+                ]
+            </section>
+        </section>
+
+        <section>
+            <section>
+                <h2>URIPolicy</h2>
+                <p>Implementation based on Drools</p>
+                <p>Adding URI rules in configuration, which are internally converted to Drools rules</p>
+                <p>Allows to authorize based on various characteristics of resourceRequest itself</p>
+                <ul>
+                    <li>request URI</li>
+                    <li>request parameters</li>
+                    <li>request body (resourceState)</li>
+                </ul>
+                <p>not just "URIPolicy" as it allows to create conditions based on anything in request</p>
+            </section>
+
+            <section>
+                <h2>Example of rule</h2>
+                {
+                    "priority": 1,
+                    "uriPattern": "/app/(.*)[.](html|css|js|png)",
+                    "requestType": "READ",
+                    "allowedUsers": "'*'"
+                },
+            </section>
+
+            <section>
+                <h2>Example 2</h2>
+                {
+                    "priority": 1,
+                    "uriPattern": "/storage*",
+                    "requestType": "CREATE",
+                    "queryParamsCondition": "$requestState.getProperty('user') ==  $securityContext.subject",
+                    "allowedRoles": "'test-app/user'"
+                },
+            </section>
+        </section>
+
+        <section>
+            <section>
+                <h2>ACLPolicy</h2>
+                <p>Authorize based on ACL attached to resource itself</p>
+                <p>Using 'Client' to retrieve resource first</p>
+            </section>
+
+            <section>
+                <h2>Example</h2>
+                <p>Rule: </p>
+                <p>
+                    {
+                        "requestType": "UPDATE",
+                        "allowedUserAttribute": "user"
+                    }
+                </p>
+                <p>Resource: </p>
+                <p>
+                    {
+                        "name": "myTodo",
+                        "something": "foo",
+                        "user": "john"
+                    }
+                </p>
+                This resource can be updated just by user "john"
+            </section>
+
+            <section>
+                <h2>Example 2</h2>
+                <p>Rule: </p>
+                <p>
+                    {
+                        "requestType": "UPDATE",
+                        "allowedUserAttribute": "user",
+                        "allowedRolesAttribute": "roles"
+                    },
+                </p>
+                <p>Resource:</p>
+                <p>
+                    {
+                        "name": "todo2",
+                        "user": "joe",
+                        "roles": ["foo", "bar"]
+                    }
+                </p>
+                <p>Either user "john" or any user with role "foo" or role "bar" is authorized</p>
+            </section>
+        </section>
+
+        <section>
+            <section>
+                <h2>TodoMVC example</h2>
+                <p>Sources at <a href="https://github.com/liveoak-io/liveoak-examples/tree/master/todomvc">https://github.com/liveoak-io/liveoak-examples/tree/master/todomvc</a></p>
+            </section>
+
+            <section>
+                <ul>
+                    <li>Administrators can do anything</li>
+                    <li>Normal "users" can CRUD just their own stuff</li>
+                    <li>Guests can do nothing</li>
+                </ul>
+            </section>
+        </section>
+
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.min.js"></script>
+
+        <script>
+
+            // Full list of configuration options available here:
+            // https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                controls: true,
+                progress: true,
+                history: true,
+                center: true,
+
+                theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+                transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+                // Parallax scrolling
+                // parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+                // parallaxBackgroundSize: '2100px 900px',
+
+                // Optional libraries used to extend on reveal.js
+                dependencies: [
+                    { src: 'lib/js/classList.js', condition: function () {
+                        return !document.body.classList;
+                    } },
+                    { src: 'plugin/markdown/marked.js', condition: function () {
+                        return !!document.querySelector('[data-markdown]');
+                    } },
+                    { src: 'plugin/markdown/markdown.js', condition: function () {
+                        return !!document.querySelector('[data-markdown]');
+                    } },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function () {
+                        hljs.initHighlightingOnLoad();
+                    } },
+                    { src: 'plugin/zoom-js/zoom.js', async: true, condition: function () {
+                        return !!document.body.classList;
+                    } },
+                    { src: 'plugin/notes/notes.js', async: true, condition: function () {
+                        return !!document.body.classList;
+                    } }
+                ]
+            });
+
+        </script>
+
+</body>
+</html>

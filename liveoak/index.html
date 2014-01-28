@@ -43,11 +43,6 @@
         </section>
 
         <section>
-            <h2>Overview</h2>
-            <img src="images/overview.svg"/>
-        </section>
-
-        <section>
             <h2>Resources</h2>
             <ul>
                 <li><b>auth</b> - Authentication. Integration with Keycloak</li>
@@ -93,6 +88,7 @@
                 </div>
             </section>
 
+            <!--
             <section>
                 <h2>Store</h2>
 
@@ -181,6 +177,7 @@
                     <p>Or a combination?</p>
                 </div>
             </section>
+            -->
         </section>
 
         <section>
@@ -336,95 +333,20 @@
 
         <section>
             <section>
-                <h2>URIPolicy</h2>
+                <h2>Policies implementation</h2>
                 <ul>
-                    <li>Implementation based on Drools</li>
-                    <li>Adding URI rules in configuration, which are internally converted to Drools rules</li>
-                    <li>Allows to authorize based on various characteristics of resourceRequest itself
+                    <li>URIPolicy
                         <ul>
-                            <li>request URI</li>
-                            <li>request parameters</li>
-                            <li>request body (resourceState)</li>
+                            <li>Implementation based on Drools</li>
+                            <li>Allows to authorize based on request itself (URI, request parameters, request body)
                         </ul>
                     </li>
-                    <li>not just "URIPolicy" as it allows to create conditions based on anything in request</li>
+                    <li>ACLPolicy
+                        <ul>
+                            <li>Allows to authorize based on ACL properties attached to resource
+                        </ul>
+                    </li>
                 </ul>
-            </section>
-
-            <section>
-                <h3>Example of rule</h3>
-                <pre>
-                    {
-                        "priority": 1,
-                        "uriPattern": "/app/(.*)[.](html|css|js|png)",
-                        "requestType": "READ",
-                        "allowedUsers": "'*'"
-                    },
-                </pre>
-            </section>
-
-            <section>
-                <h3>Example 2</h3>
-                <pre>
-{
-    "priority": 1,
-    "uriPattern": "/storage*",
-    "requestType": "CREATE",
-    "queryParamsCondition": "$requestState.getProperty('user') ==  $securityContext.subject",
-    "allowedRoles": "'test-app/user'"
-},
-                </pre>
-            </section>
-        </section>
-
-        <section>
-            <section>
-                <h2>ACLPolicy</h2>
-                <ul>
-                    <li>Authorize based on ACL attached to resource itself</li>
-                    <li>Using 'Client' to retrieve resource first</li>
-                </ul>
-            </section>
-
-            <section>
-                <h3>Example</h3>
-                <p>Rule: </p>
-                <pre>
-                    {
-                        "requestType": "UPDATE",
-                        "allowedUserAttribute": "user"
-                    }
-                </pre>
-                <p>Resource: </p>
-                <pre>
-                    {
-                        "name": "myTodo",
-                        "something": "foo",
-                        "user": "john"
-                    }
-                </pre>
-                This resource can be updated just by user "john"
-            </section>
-
-            <section>
-                <h3>Example 2</h3>
-                <p>Rule: </p>
-                <pre>
-                    {
-                        "requestType": "UPDATE",
-                        "allowedUserAttribute": "user",
-                        "allowedRolesAttribute": "roles"
-                    },
-                </pre>
-                <p>Resource:</p>
-                <pre>
-                    {
-                        "name": "todo2",
-                        "user": "joe",
-                        "roles": ["foo", "bar"]
-                    }
-                </pre>
-                <p>Either user "john" or any user with role "foo" or role "bar" is authorized</p>
             </section>
         </section>
 
@@ -442,6 +364,22 @@
                     <li>Guests can do nothing</li>
                 </ul>
             </section>
+        </section>
+
+        <section>
+            <h2>MAD - needed steps</h2>
+            <ol>
+                <li>
+                    Configure auth resource (Keycloak) by either:
+                    <ul>
+                        <li>Configure realm with predefined users,roles and application in keycloak-config.json</li>
+                        <li>Login to keycloak admin console and create realm and all the necessary object in it</li>
+                    </ul>
+                </li>
+                <li>Configure policies and endpoints in authz-config.json (which resource should be subject to which policies)</li>
+                <li>Configure policies rules in uri-policy-config.json and/or acl-policy-config.json</li>
+                <li>Integrate your HTML5 application with Javascript SDK</li>
+            </ol>
         </section>
 
         <script src="lib/js/head.min.js"></script>

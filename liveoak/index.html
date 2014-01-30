@@ -42,6 +42,7 @@
             <h1>LiveOak Security</h1>
         </section>
 
+        <!--
         <section>
             <h2>Resources</h2>
             <ul>
@@ -50,6 +51,7 @@
                 <li><b>policy resources</b> - Concrete implementations of policies for request authorization</li>
             </ul>
         </section>
+        -->
 
         <section>
             <h1>Auth</h1>
@@ -57,10 +59,12 @@
             <p>Powered by Keycloak</p>
         </section>
 
+        <!--
         <section>
             <h2>Model</h2>
             <img src="images/keycloak-model.svg"/>
         </section>
+            -->
 
         <section>
             <h2>Auth resource</h2>
@@ -71,6 +75,7 @@
             </ul>
         </section>
 
+        <!--
         <section>
             <section>
                 <h2>Integration</h2>
@@ -87,6 +92,7 @@
                     <p>Mongo and Resources</p>
                 </div>
             </section>
+            -->
 
             <!--
             <section>
@@ -185,13 +191,15 @@
                 <h2>Javascript SDK</h2>
                 <ul>
                     <li>Handles client-side of OAuth2 flow between HTML5 user application (client) and Keycloak (server)</li>
-                    <li>sources in clients/javascript/src/main/javascipt/auth/client.js</li>
+                    <li>sources in clients/javascript/src/main/javascript/auth/client.js</li>
                 </ul>
             </section>
 
             <section>
                 <h3>Example of JS code in HTML5 page</h3>
                 <pre>
+                    &lt;script src="/client/liveoak.js" type="text/javascript" /&gt;
+
                     var liveOak = LiveOak({
                         auth: {
                             clientId: 'test-app',
@@ -207,7 +215,6 @@
             </section>
 
             <section>
-                <h3>Authenticated user</h3>
                 <ul>
                     <li>Signed JWT access token available in "window.oauth.init"</li>
                     <li>Requests to LiveOak sent with Javascript SDK will contain header: Authorization: Bearer &lt;access token&gt;</li>
@@ -222,10 +229,35 @@
         </section>
 
         <section>
-            <h2>Request processing in LiveOak</h2>
-            <img src="images/overview.svg"/>
-        </section>
+            <section>
+                <h2>Request processing in LiveOak</h2>
+                <img src="images/overview.svg"/>
+            </section>
 
+            <section>
+                <h3>SecurityContext</h3>
+                <ul>
+                    <li>Part of LiveOak SPI. Accessible from RequestContext</li>
+                    <li>Contract between authentication and authorization</li>
+                </ul>
+            </section>
+
+            <section>
+                <h3>SecurityContext interface</h3>
+                <pre>
+                    public interface SecurityContext {
+                        String getSubject();
+                        boolean isAuthenticated();
+                        Set&lt;String&gt; getRoles();
+                        boolean hasRole(String role);
+                        String getRealm();
+                        long lastVerified();
+                    }
+               </pre>
+            </section>
+
+        </section>
+  <!--
         <section>
             <section>
                 <h3>AuthHandler</h3>
@@ -275,19 +307,19 @@
                </pre>
             </section>
         </section>
-
+          -->
         <section>
             <h1>Authz</h1>
             <p>Powered by Policies</p>
         </section>
 
-        <section>
+        <!--<section>
             <h2>AuthzHandler</h2>
             <ul>
                 <li>send authorization request to "authz" resource to verify if current request is authorized</li>
                 <li>Assumption: SecurityContext is already established and filled by AuthHandler (or other handler/interceptor)</li>
             </ul>
-        </section>
+        </section>   -->
 
         <section>
             <section>
@@ -298,19 +330,6 @@
             <section>
                 <p>Policies are invoked over REST (async)</p>
                 <p>A policy can include/exclude specific resources</p>
-            </section>
-            <section>
-                <h2>Policy Decisions</h2>
-
-                <div class="space-top col-3"><h3>Accept</h3></div>
-                <div class="space-top col-3"><h3>Reject</h3></div>
-                <div class="space-top col-3"><h3>Ignore</h3></div>
-
-                <div class="clearfix"></div>
-
-                <div class="space-top">
-                    <p>Accepted if at least one accept and no rejects</p>
-                </div>
             </section>
 
             <section>
@@ -329,6 +348,21 @@
                 ]
                 </pre>
             </section>
+
+            <section>
+                <h2>Policy Decisions</h2>
+
+                <div class="space-top col-3"><h3>Accept</h3></div>
+                <div class="space-top col-3"><h3>Reject</h3></div>
+                <div class="space-top col-3"><h3>Ignore</h3></div>
+
+                <div class="clearfix"></div>
+
+                <div class="space-top">
+                    <p>Accepted if at least one accept and no rejects</p>
+                </div>
+            </section>
+
         </section>
 
         <section>

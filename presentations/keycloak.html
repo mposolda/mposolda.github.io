@@ -191,6 +191,40 @@
             </li>
         </ul>
     </section>
+    <section>
+        <h3>OAuth client</h3>
+        <ul>
+            <li>Special kind of application with less permissions</li>
+            <li>Not intended to be used for authentication. Just to retrieve tokens to obtain some data from 3rd party application</li>
+            <li>Users need to grant permissions (confirm roles for their accessToken similarly like FB, Google are doing)</li>
+        </ul>
+    </section>
+    <section>
+        <h3>Roles</h3>
+        <ul>
+            <li>Either realm roles (global) or application roles (per-app)</li>
+            <li>Composite roles (containers for other roles)</li>
+        </ul>
+    </section>
+    <section>
+        <h3>Users</h3>
+        <ul>
+            <li>Claims</li>
+            <li>Credentials</li>
+            <li>Role mappings</li>
+            <li>Social links</li>
+            <li>Federation link</li>
+        </ul>
+    </section>
+    <section>
+        <h3>User session</h3>
+        <ul>
+            <li>Represents single browser session</li>
+            <li>Links to all apps where is user logged</li>
+            <li>Updated during each login/logout/token refresh</li>
+            <li>Usually saved in memory or in infinispan (in cluster env)</li>
+        </ul>
+    </section>
 </section>
 
 
@@ -202,10 +236,10 @@
         <h2>Access token</h2>
         <ul>
             <li>JWT token with info about user, his roles, app where he authenticated</li>
-            <li>JSON Format</li>
+            <li>JSON data encoded with Base64</li>
             <li>Signed with realm private key</li>
             <li>Short-lived (1-5 minutes)</li>
-            <li>Can be used as bearer token to authenticate from browser application to REST applications</li>
+            <li>Can be used as bearer token to authenticate from browser application to REST application</li>
             <li>REST application can verify signature with realm public key. No need to talk to Keycloak</li>
         </ul>
     </section>
@@ -216,6 +250,19 @@
             <li>Once access token expires, application will send "refresh" request to KC server and retrieve new access token</li>
         </ul>
     </section>
+</section>
+
+<section>
+    <h3>How to secure my app with Keycloak</h3>
+    <ul>
+        <li>Configure application in keycloak</li>
+        <li>Add keycloak.json configuration file to your app.</li>
+        <li>Use KEYCLOAK as auth-method (for servlet applications)</li>
+    </ul>
+</section>
+
+<section>
+    <h2>Demo</h2>
 </section>
 
 <script src="lib/js/head.min.js"></script>

@@ -86,7 +86,7 @@
     <ul>
         <li>User registration</li>
         <li>Reset passwords (both admin and user can do it)</li>
-        <li>Forgot my username</li>
+        <li>Forgot my password</li>
         <li>Password policies</li>
         <li>TOTP support - allows 2-steps authentication</li>
     </ul>
@@ -184,9 +184,9 @@
             <li>Web origins - List of allowed origins for CORS support</li>
             <li>Application types
                 <ul>
-                    <li>Confidential - ClientId+ClientSecret (clientSecret not known to end user) - usually browser apps with server side support</li>
-                    <li>Public - no client secret - usually browser apps with login on client side (Javascript applications)</li>
-                    <li>Bearer-only - No UI app with redirect to KC login screen. Supports just authentication of REST endpoint with "external" accessToken granted to different app</li>
+                    <li>Confidential</li>
+                    <li>Public</li>
+                    <li>Bearer-only</li>
                 </ul>
             </li>
         </ul>
@@ -231,11 +231,22 @@
 <section>
     <section>
         <h2>Tokens</h2>
+        <ul>
+            <li>3 tokens sent by Keycloak after successful authentication</li>
+            <li>Each token is Base64 encoded string with JSON data inside</li>
+            <li>Signed with realm private key</li>
+        </ul>
+    </section>
+    <section>
+        <h2>ID token</h2>
+        <ul>
+            <li>JWT token with info about user</li>
+        </ul>
     </section>
     <section>
         <h2>Access token</h2>
         <ul>
-            <li>JWT token with info about user, his roles, app where he authenticated</li>
+            <li>JWT token with info about user roles, app where he authenticated</li>
             <li>JSON data encoded with Base64</li>
             <li>Signed with realm private key</li>
             <li>Short-lived (1-5 minutes)</li>
@@ -247,7 +258,7 @@
         <h2>Refresh token</h2>
         <ul>
             <li>Used to 'refresh' previously issued access token</li>
-            <li>Once access token expires, application will send "refresh" request to KC server and retrieve new access token</li>
+            <li>Once access token expires, application will send "refresh" request to KC server and retrieve new set of tokens</li>
         </ul>
     </section>
 </section>

@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>Keycloak - Implicit Flow Support</title>
+
+    <meta name="description" content="...">
+    <meta name="author" content="Marek Posolda">
+
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/liveoak.css" id="theme">
+
+    <link href='fonts/fonts.css' rel='stylesheet'
+          type='text/css'>
+
+    <!-- For syntax highlighting -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+        document.write('<link rel="stylesheet" href="css/print/' + ( window.location.search.match(/print-pdf/gi) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">');
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+
+<div class="reveal">
+    <div class="slides">
+
+        <section>
+            <h1>Keycloak - Implicit Flow Support</h1>
+        </section>
+
+
+        <section>
+            <section>
+                <h2>Authorization Code flow</h2>
+                <ul>
+                    <li>Basic flow described in OAuth2 and OpenID Connect 1 specifications</li>
+                    <li>Supported in Keycloak from it's early days</li>
+                </ul>
+            </section>
+
+            <section>
+                <img src="images/oauth2-authCode.png" width="150%"/>
+            </section>
+
+            <section>
+                <h3>Step A</h3>
+                <ul>
+                    <li>User accesses secured URL on application side (or click login)</li>
+                    <li>Application redirects browser to Keycloak with <b>Authorization Request</b></li>
+                </ul>
+            </section>
+
+            <section>
+                <h3>Authorization request example</h3>
+                <div align="left">
+                  http://localhost:8080/auth/realms/example/protocol/openid-connect/auth<br>
+                    &nbsp;&nbsp;?client_id=js-console<br>
+                    &nbsp;&nbsp;&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fjs-console%2F<br>
+                    &nbsp;&nbsp;&state=aea3526d-ee91-4f17-b262-d794e49e16d0<br>
+                    &nbsp;&nbsp;&response_type=code<br>
+                </div>
+            </section>
+
+            <section>
+                <h3>Step B</h3>
+                Keycloak authenticates user (doesn't matter how)
+                and optionally show grant screen
+            </section>
+
+            <section>
+                <h3>Step C</h3>
+                <ul>
+                    <li><b>Authorization Response</b> - Keycloak redirects through user's browser to the application with <b>code</b> and <b>state</b> parameters</li>
+                    <li>URL of redirection was specified by <b>redirect_uri</b> parameter sent earlier in Authorization Request</li>
+                    <li>Must be allowed in client configuration in Keycloak admin console (Valid Redirect URIs)</li>
+                </ul>
+            </section>
+
+            <section>
+                <h3>Authorization response example</h3>
+                <div align="left">
+                  http://localhost:8080/js-console/<br>
+                    &nbsp;&nbsp;?state=aea3526d-ee91-4f17-b262-d794e49e16d0
+                    &nbsp;&nbsp;&code=TNe8_fSjxFRQhaI78SjxbScncZ3Roy5lJQIEiLCiXBE.0a55d203-9f7f-4b52-b496-e23b1477fd0b
+                </div>
+            </section>
+
+            <section>
+                <h3>Step D and E</h3>
+                <ul>
+                    <li>Client application sends out-of-bound request to exchange code for token</li>
+                    <li>Browser is not involved in typical server-side applications</li>
+                    <li>Token request is POST request. It contains <b>code</b> and is authenticated with client credentials</li>
+                    <li>Token response contains:
+                        <ul>
+                            <li>access_token</li>
+                            <li>id_token</li>
+                            <li>refresh_token</li>
+                        </ul>
+                    </li>
+                    <li>Both client credentials and tokens are hidden from browser (and user) in server-side applications</li>
+                </ul>
+            </section>
+            <section>
+                <h3>Token request example</h3>
+                <div align="left">
+                    POST: http://localhost:8080/auth/realms/example/protocol/openid-connect/token<br>
+                    <br>
+                    &nbsp;&nbsp;code=TNe8_fSjxFRQhaI78SjxbScncZ3Roy5lJQIEiLCiXBE.0a55d203-9f7f-4b52-b496-e23b1477fd0b<br>
+                    &nbsp;&nbsp;&grant_type=authorization_code<br>
+                    &nbsp;&nbsp;&client_id=js-console<br>
+                    &nbsp;&nbsp;&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fjs-console%2F<br>
+                </div>
+            </section>
+
+            <section>
+                <h3>Response from token request</h3>
+                <div align="left">
+                    {<br>
+                    &nbsp;&nbsp;"access_token":"eyJhbGciOiJSUzI1...",<br>
+                    &nbsp;&nbsp;"expires_in":300,<br>
+                    &nbsp;&nbsp;"refresh_token":"eyJhbGciOiJSU...",<br>
+                    &nbsp;&nbsp;"refresh_expires_in":1800,<br>
+                    &nbsp;&nbsp;"token_type":"bearer",<br>
+                    &nbsp;&nbsp;"id_token":"eyJhbGc...",<br>
+                    &nbsp;&nbsp;"not-before-policy":0,<br>
+                    &nbsp;&nbsp;"session-state":"f58c76c1-85b9-4bbb-a26d-ebf56ec47334"<br>
+                    }
+                </div>
+            </section>
+        </section>
+
+        <section>
+            <section>
+                <h2>Implicit flow</h2>
+                <ul>
+                    <li>Described in OAuth2 and OpenID Connect 1 specifications</li>
+                    <li>Supported in Keycloak from 1.7</li>
+                </ul>
+            </section>
+
+            <section>
+                <img src="images/oauth2-implicit.png" width="80%"/>
+            </section>
+
+            <section>
+                <h3>Step A</h3>
+                <ul>
+                    <li>Authorization Request quite similar like in Authorization Code flow. But:</li>
+                    <li>response_type=id_token token</li>
+                </ul>
+            </section>
+
+            <section>
+                <h3>Step C - Authorization Response</h3>
+                <ul>
+                    <li>Parameters sent in URL fragment (not in query like Authorization Code Flow)</li>
+                    <li>contains <b>access_token</b> and <b>id_token</b>. Doesn't contain <b>code</b> or <b>refresh_token</b></li>
+                </ul>
+            </section>
+
+            <section>
+                <h3>Authorization response example</h3>
+                <div align="left">
+                    http://localhost:8080/js-console/<br>
+                    &nbsp;&nbsp;#access_token=eyJhbGciOiJSUzI1...<br>
+                    &nbsp;&nbsp;&expires_in=300<br>
+                    &nbsp;&nbsp;&token_type=bearer<br>
+                    &nbsp;&nbsp;&id_token=eyJhbGc...<br>
+                    &nbsp;&nbsp;& not-before-policy=0<br>
+                    &nbsp;&nbsp;&session-state=f58c...<br>
+                </div>
+            </section>
+
+            <section>
+                <h3>Step D and E</h3>
+                <ul>
+                    <li>Browser redirects the Authorization response to the application, but <b>without</b> fragment parameters</li>
+                    <li>Access token and ID token not sent to the server-side of client application</li>
+                    <li>Application returns the HTML page with keycloak.js adapter</li>
+                    <li>keycloak.js adapter parses tokens from fragment and save them locally.</li>
+                    <li>Fragment part is removed from browser history</li>
+                </ul>
+            </section>
+
+            <section>
+                <h3>Implicit flow details</h3>
+                <ul>
+                    <li>There is no separate Token request ( code-to-token ) request needed</li>
+                    <li>There are no client credentials</li>
+                    <li>There is no refresh token</li>
+                    <li>Typical usage in javascript applications</li>
+                </ul>
+            </section>
+
+            <section>
+                <h3>Keycloak and implicit flow</h3>
+                <ul>
+                    <li>Flag on client details in admin console, whether implicit flow is enabled or not</li>
+                    <li>Flag disabled by default</li>
+                    <li>Separate timeout for Access tokens issued during implicit flow (15 minutes by default)</li>
+                    <li>keycloak.js provides callback function <b>onTokenExpired</b> , which allows application to handle token expiration</li>
+                </ul>
+            </section>
+
+            <section>
+                <h3>Keycloak and implicit flow</h3>
+                <ul>
+                    <li>keycloak.js still uses standard (Authorization Code) flow by default because:</li>
+                    <li>There is no refresh token in implicit flow</li>
+                    <li>Tokens sent in URL fragment. Security implications</li>
+                </ul>
+            </section>
+
+            <section>
+                <h3>Use implicit flow in keycloak.js</h3>
+                <ul>
+                    <li>Use parameter to keycloak.init like:</li>
+                    <li>keycloak.init({ flow: 'implicit' })</li>
+                </ul>
+            </section>
+        </section>
+
+        <section>
+            <section>
+                <h2>Hybrid flow</h2>
+                <ul>
+                    <li>Described in OpenID Connect 1 specification</li>
+                </ul>
+            </section>
+
+            <section>
+                <h3>Step A</h3>
+                <ul>
+                    <li>Authorization Request has response_type with both code and tokens.</li>
+                    <li>response_type=code id_token token</li>
+                </ul>
+            </section>
+
+            <section>
+                <h3>Authorization Response</h3>
+                <ul>
+                    <li>Parameters sent in URL fragment (like for implicit flow)</li>
+                    <li>contains <b>code</b> and <b>access_token</b> and <b>id_token</b></li>
+                </ul>
+            </section>
+
+            <section>
+                <ul>
+                    <li>Application can immediately use accessToken and IDToken from URL fragment</li>
+                    <li>In addition, it can use code-to-token request to retrieve refresh token</li>
+                </ul>
+            </section>
+
+            <section>
+                <h3>Hybrid flow details</h3>
+                <ul>
+                    <li>It addresses the implicit flow limitation with no refresh token</li>
+                    <li>Still has security implications (initial tokens in URL fragment)</li>
+                </ul>
+            </section>
+
+            <section>
+                <h3>Keycloak and hybrid flow</h3>
+                <ul>
+                    <li>Requires both 'standard' and 'implicit' flags enabled for client</li>
+                    <li>Use parameter to keycloak.init like:</li>
+                    <li>keycloak.init({ flow: 'hybrid' })</li>
+                </ul>
+            </section>
+        </section>
+
+        <section>
+            <section>
+                <h2>response_mode parameter</h2>
+                <ul>
+                    <li>Optional parameter used in Authorization Request</li>
+                    <li>Supported in OpenID Connect 1 specs</li>
+                    <li>Valid values:
+                        <ul>
+                            <li>query</li> - authorization response will send parameters in URL query
+                            <li>fragment</li> - authorization response will send parameters in URL fragment
+                            <li>form_post</li> - authorization response will be POST request instead of GET. Params in the body
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+
+            <section>
+                <h3>Authorization code</h3>
+                <ul>
+                    <li>Authorization Code flow uses 'query' mode by default</li>
+                    <li>Query mode is needed for server applications</li>
+                    <li>Javascript applications don't need query</li>
+                    <li>They need code to be available just in browser side ( in keycloak.js )</li>
+                </ul>
+            </section>
+            <section>
+                <ul>
+                    <li>keycloak.js now uses 'fragment' mode by default even for authorization code flow</li>
+                    <li>fragment is safer. Code parameter not send to client application</li>
+                    <li>Hence keycloak.js login requests now use parameter in login request: response_mode=fragment</li>
+                    <li>Switch keycloak.js to fallback to query with init parameter:</li>
+                    <li>keycloak.init({ responseMode: 'query' })</li>
+                </ul>
+            </section>
+
+            <section>
+                <h3>Implicit and Hybrid flow</h3>
+                <ul>
+                    <li>Implicit and hybrid are using 'fragment' by default</li>
+                    <li>Query mode is not even allowed (per specs)</li>
+                </ul>
+            </section>
+        </section>
+
+        <section>
+            <section>
+                <h2>keycloak.js default behaviour</h2>
+                <ul>
+                    <li>Still using Authorization Code flow like before</li>
+                    <li>Using fragment response mode now</li>
+                    <li>A bit safer than before. Code is not send to the client application anymore</li>
+                </ul>
+            </section>
+        </section>
+
+
+
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.min.js"></script>
+
+        <script>
+
+            // Full list of configuration options available here:
+            // https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                controls: true,
+                progress: true,
+                history: true,
+                center: true,
+
+                theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+                transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+                // Parallax scrolling
+                // parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+                // parallaxBackgroundSize: '2100px 900px',
+
+                // Optional libraries used to extend on reveal.js
+                dependencies: [
+                    { src: 'lib/js/classList.js', condition: function () {
+                        return !document.body.classList;
+                    } },
+                    { src: 'plugin/markdown/marked.js', condition: function () {
+                        return !!document.querySelector('[data-markdown]');
+                    } },
+                    { src: 'plugin/markdown/markdown.js', condition: function () {
+                        return !!document.querySelector('[data-markdown]');
+                    } },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function () {
+                        hljs.initHighlightingOnLoad();
+                    } },
+                    { src: 'plugin/zoom-js/zoom.js', async: true, condition: function () {
+                        return !!document.body.classList;
+                    } },
+                    { src: 'plugin/notes/notes.js', async: true, condition: function () {
+                        return !!document.body.classList;
+                    } }
+                ]
+            });
+
+        </script>
+
+</body>
+</html>

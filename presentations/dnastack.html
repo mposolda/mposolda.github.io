@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>Keycloak</title>
+
+    <meta name="description" content="...">
+    <meta name="author" content="Marek Posolda">
+
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/liveoak.css" id="theme">
+
+    <link href='fonts/fonts.css' rel='stylesheet'
+          type='text/css'>
+
+    <!-- For syntax highlighting -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+        document.write('<link rel="stylesheet" href="css/print/' + ( window.location.search.match(/print-pdf/gi) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">');
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+
+<div class="reveal">
+<div class="slides">
+
+<section>
+    <h1>Keycloak</h1>
+</section>
+
+<section>
+    <section>
+        <h2>Main features</h2>
+        <ul>
+            <li>Authentication for web (and other) applications</li>
+            <li>SSO</li>
+            <li>Single-sign out</li>
+            <li>Standards based (OpenID Connect, SAML2)</li>
+        </ul>
+    </section>
+    <section>
+        <h3>Identity management</h3>
+        <ul>
+            <li>realms, clients, roles and users</li>
+            <li>RDBMS or Mongo as underlying storage</li>
+        </ul>
+    </section>
+    <section>
+        <h3>UI</h3>
+        <ul>
+            <li>Admin console</li>
+            <li>Account management</li>
+            <li>User login, registrations, reset passwords</li>
+            <li>Fully pluggable (Themes support)</li>
+        </ul>
+    </section>
+    <section>
+        <h3>Identity providers</h3>
+        <ul>
+            <li>Social brokering support (Facebook, Google, Twitter...)</li>
+            <li>Any 3rd party identity provider brokering (OpenID Connect, SAML2, OAuth2)</li>
+        </ul>
+    </section>
+    <section>
+        <ul>
+            <li>LDAP integration</li>
+            <li>Kerberos support</li>
+            <li>TOTP support</li>
+        </ul>
+    </section>
+    <section>
+        <h3>Adapters</h3>
+        <ul>
+            <li>Both OpenID Connect and SAML2 based</li>
+            <li>Wildfly 8-10</li>
+            <li>EAP 6-7</li>
+            <li>Tomcat</li>
+            <li>Jetty</li>
+            <li>JBoss Fuse / Karaf</li>
+            <li>Javascript</li>
+        </ul>
+    </section>
+    <section>
+        <h3>Customizations</h3>
+        <ul>
+            <li>Authentication SPI</li>
+            <li>User Federation SPI</li>
+            <li>Events SPI</li>
+            <li>Custom protocol mappers, broker mappers or LDAP mappers   </li>
+        </ul>
+    </section>
+</section>
+
+<section>
+    <section>
+        <h2>History and current state</h2>
+        <ul>
+            <li>Started in early 2013 by Bill Burke and Stian Thorgersen</li>
+            <li>1.0.0.Final release in Summer 2014</li>
+            <li>Latest version is 1.9.1</li>
+            <li>6 developers, 6 QA team members in Brno, Big community</li>
+        </ul>
+    </section>
+    <section>
+        <h2>Production support</h2>
+        <ul>
+            <li>Product based on Keycloak planned to be released</li>
+            <li>Product will be based on 1.9.x community branch</li>
+            <li>Keycloak master branch opened for new features by community to KC 2.0</li>
+            <li>KC engineers and QA are mainly focused on 1.9.x</li>
+
+        </ul>
+    </section>
+    <section>
+        <ul>
+            <li>KC engineers and QA are mainly focused on 1.9.x</li>
+            <li>Stabilization, bugfixing, performance (no new features)</li>
+            <li>Community users, who wants product, encouraged to migrate to 1.9.X to catch bugs early</li>
+            <li>Authorization planned for 2.X</li>
+        </ul>
+    </section>
+</section>
+
+
+<section>
+    <section>
+        <h2>Planned features for 2.0</h2>
+        <ul>
+            <li>OpenID connect certification</li>
+            <li>Better FreeIPA integration</li>
+            <li>More plugability (extend Keycloak with your REST endpoints etc)</li>
+            <li>Validations SPI</li>
+            <li>Make some SPI more stable (especially User storage / federation)</li>
+        </ul>
+    </section>
+    <section>
+        <ul>
+            <li>Authorization support</li>
+            <li>Remove master realm, better authorization for admin console</li>
+            <li>Whatever requested/needed by community and customers ;)</li>
+        </ul>
+    </section>
+</section>
+
+<section>
+    <section>
+        <h2>Direct access grants</h2>
+        <ul>
+            <li>Based on "Resource owner password credentials grant" from OAuth2</li>
+            <li>Client directly exchanges username and password of user for tokens</li>
+            <li>Main usage in non-web clients</li>
+            <li>Authentication flow support</li>
+            <li>Possible to disable on client</li>
+        </ul>
+    </section>
+    <section>
+        <h3>Limitations</h3>
+        <ul>
+            <li>Client needs to know credentials of user</li>
+            <li>User can't have "required actions"</li>
+            <li>Client can't require consents</li>
+        </ul>
+    </section>
+    <section>
+        <h3>Service accounts</h3>
+        <ul>
+            <li>Alternative to direct access grants</li>
+            <li>Based on "Client credentials grant" from OAuth2</li>
+            <li>Client receives tokens on behalf of himself. No user credentials involved</li>
+        </ul>
+    </section>
+    <section>
+        <h3>Example</h3>
+    </section>
+</section>
+
+<section>
+    <section>
+        <h2>Custom claims</h2>
+        <ul>
+            <li>SPI to allow change token (SAML assertion) anyhow you want</li>
+            <li>Bunch of pre-defined implementations</li>
+        </ul>
+    </section>
+    <section>
+        <h3>Example</h3>
+    </section>
+</section>
+
+<section>
+        <section>
+            <h2>Identity providers</h2>
+            <ul>
+                <li>Either use one of pre-defined social providers</li>
+                <li>Or use any OpenID Connect, OAuth2 or Social provider</li>
+                <li>Possibility to write your own</li>
+                <li>Possibility to write your mapper</li>
+                <li>First login flow</li>
+            </ul>
+        </section>
+        <section>
+            <h3>Example</h3>
+        </section>
+</section>
+
+<section>
+    <section>
+        <h2>Authorization - current state</h2>
+        <ul>
+            <li>No special support</li>
+            <li>OIDC and SAML2 doesn't handle authorization on app side directly</li>
+            <li>So that keycloak ATM ;)</li>
+            <li>Application has access token with roles and attributes and it needs to decide what to do</li>
+            <li>Adapters has support for mapping of token roles into JEE roles   </li>
+        </ul>
+    </section>
+    <section>
+        <h2>Authorization - future</h2>
+        <ul>
+            <li>prototype by Pedro</li>
+            <li>https://github.com/pedroigor/keycloak-authz</li>
+            <li>Really just prototype under development</li>
+            <li>ATM requires to build special branch of Keycloak (Pedro's fork) and then keycloak-authz</li>
+        </ul>
+    </section>
+    <section>
+        <h2>Possibilities</h2>
+        <ul>
+            <li>Either part of Keycloak directly</li>
+            <li>Pluggable extension deployable to Keycloak</li>
+        </ul>
+    </section>
+    <section>
+        <h2>Features</h2>
+        <ul>
+            <li>Based on standards (OAuth2 , UMA, XACML planned)</li>
+            <li>Flexible authorization rules (policies) decoupled from the application</li>
+            <li>Possibility to support simple (role-based, user-based) to complex (Javascript rules, Drools rules etc)</li>
+        </ul>
+    </section>
+    <section>
+        <ul>
+            <li>Policy Administration Point (PAP)
+                <ul><li>Administration of authorization rules/policies in Keycloak admin console</li></ul>
+            </li>
+            <li>Policy Decision Point (PDP)
+                <ul><li>Endpoint to send authorization request and receive tokens with authorization response</li></ul>
+            </li>
+            <li>Policy Enforcement point (PEP)
+                <ul>
+                    <li>Support on application side to communicate with the PDP</li>
+                    <li>In my understanding, something like "adapter" for authorization</li>
+                </ul>
+            </li>
+        </ul>
+    </section>
+</section>
+
+
+<script src="lib/js/head.min.js"></script>
+<script src="js/reveal.min.js"></script>
+
+<script>
+
+            // Full list of configuration options available here:
+            // https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                controls: true,
+                progress: true,
+                history: true,
+                center: true,
+
+                theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+                transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+                // Parallax scrolling
+                // parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+                // parallaxBackgroundSize: '2100px 900px',
+
+                // Optional libraries used to extend on reveal.js
+                dependencies: [
+                    { src: 'lib/js/classList.js', condition: function () {
+                        return !document.body.classList;
+                    } },
+                    { src: 'plugin/markdown/marked.js', condition: function () {
+                        return !!document.querySelector('[data-markdown]');
+                    } },
+                    { src: 'plugin/markdown/markdown.js', condition: function () {
+                        return !!document.querySelector('[data-markdown]');
+                    } },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function () {
+                        hljs.initHighlightingOnLoad();
+                    } },
+                    { src: 'plugin/zoom-js/zoom.js', async: true, condition: function () {
+                        return !!document.body.classList;
+                    } },
+                    { src: 'plugin/notes/notes.js', async: true, condition: function () {
+                        return !!document.body.classList;
+                    } }
+                ]
+            });
+
+        </script>
+
+</body>
+</html>

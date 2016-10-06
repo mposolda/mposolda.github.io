@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>Keycloak Key Rotation</title>
+
+    <meta name="description" content="...">
+    <meta name="author" content="Marek Posolda">
+
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/liveoak.css" id="theme">
+
+    <link href='fonts/fonts.css' rel='stylesheet'
+          type='text/css'>
+
+    <!-- For syntax highlighting -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+        document.write('<link rel="stylesheet" href="css/print/' + ( window.location.search.match(/print-pdf/gi) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">');
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+
+<div class="reveal">
+    <div class="slides">
+
+        <section>
+            <h1>Key Rotation - consumer</h1>
+        </section>
+
+
+        <section>
+            <section>
+                <h2>OIDC login flow</h2>
+                <ul>
+                    <li>Adapter (application) redirects to Keycloak</li>
+                    <li>Keycloak authenticates user</li>
+                    <li>Keycloak creates token and sign with Keycloak private key</li>
+                    <li>Keycloak sends token to the adapter</li>
+                    <li>Adapter validates with Keycloak public key</li>
+                </ul>
+            </section>
+        </section>
+
+        <section>
+            <section>
+                <h2>How is Keycloak public key known to the adapter?</h2>
+                <p>2 possibilities</p>
+            </section>
+            <section>
+                <h3>Hardcoded key in adapter config</h3>
+                <pre>
+                    {
+                      "realm" : "demo",
+                      "resource" : "product-portal",
+                      <b>"realm-public-key" : "MBcxwz46...",</b>
+                      ...
+                    }
+                </pre>
+            </section>
+            <section>
+                <h3>Key dynamically downloaded</h3>
+                <ul>
+                    <li>Adapter downloads the public key from Keycloak</li>
+                    <li>This supports key rotation.</li>
+                    <li>Also supports more public keys available at the same time</li>
+                </ul>
+            </section>
+        </section>
+
+        <section>
+            <section>
+                <h3>Key rotation example flow</h3>
+                <ul>
+                    <li>User authenticates. Token signed by private-key-1 sent</li>
+                    <li>Adapter downloads public-key-1 from Keycloak</li>
+                    <li>Adapter verifies token1</li>
+                </ul>
+            </section>
+            <section>
+                <h3>Example flow - continue</h3>
+                <ul>
+                    <li>Admin rotates keys on Keycloak server and generates keypair2</li>
+                    <li>Another user authenticates. Token signed by private-key-2 sent</li>
+                    <li>Adapter downloads again new keys from Keycloak. Both key1 and key2</li>
+                    <li>Adapter verifies token2</li>
+                    <li>Tokens signed by token1 still supported</li>
+                </ul>
+            </section>
+            <section>
+                <ul>
+                    <li>How adapter recognize it should download new keys?</li>
+                    <li>How adapter recognize which public key to use?</li>
+                </ul>
+            </section>
+            <section>
+                <h3>KID (Key ID)</h3>
+                <ul>
+                    <li>Keys published by Keycloak are in JWK format and have KID field on them</li>
+                    <li>JWT tokens also have "kid" field - in the JWT header</li>
+                    <li>Adapter downloads new key when recognize unknown "kid"</li>
+                </ul>
+            </section>
+        </section>
+
+        <section>
+            <h2>Implementation - adapter</h2>
+            <ul>
+                <li>PublicKeyLocator interface</li>
+                <li>field on KeycloakDeployment</li>
+                <li>HardcodedPublicKeyLocator - used when realm-public-key in keycloak.json</li>
+                <li>JWKPublicKeyLocator - used otherwise. Ability to dynamically download keys</li>
+                <li>New adapter option - min-time-between-jwks-requests</li>
+            </ul>
+        </section>
+
+        <section>
+            <section>
+                <h2>Keycloak as "consumer"</h2>
+                <ul>
+                    <li>Used when Keycloak itself needs to download public keys of external entities</li>
+                    <li>2 cases:
+                        <ul>
+                            <li>OIDC Identity providers</li>
+                            <li>Client auth with signed JWT</li>
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+            <section>
+                <h3>PublicKeyStorageProvider SPI</h3>
+                <ul>
+                    <li>1 impl based on infinispan</li>
+                    <li>Used for both idp and clients</li>
+                    <li>Again 2 possibilities:
+                        <ul>
+                            <li>Hardcoded key in config</li>
+                            <li>JWKS URL (keys dynamically downloaded when needed. Again based on "kid")</li>
+                        </ul>
+                    </li>
+                    <li>Better performance than before (Keys cached locally)</li>
+                    <li>10 seconds timeout by default</li>
+                    <li>Configurable eviction and expiration (at infinispan level)</li>
+                </ul>
+            </section>
+        </section>
+
+
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.min.js"></script>
+
+        <script>
+
+            // Full list of configuration options available here:
+            // https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                controls: true,
+                progress: true,
+                history: true,
+                center: true,
+
+                theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+                transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+                // Parallax scrolling
+                // parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+                // parallaxBackgroundSize: '2100px 900px',
+
+                // Optional libraries used to extend on reveal.js
+                dependencies: [
+                    { src: 'lib/js/classList.js', condition: function () {
+                        return !document.body.classList;
+                    } },
+                    { src: 'plugin/markdown/marked.js', condition: function () {
+                        return !!document.querySelector('[data-markdown]');
+                    } },
+                    { src: 'plugin/markdown/markdown.js', condition: function () {
+                        return !!document.querySelector('[data-markdown]');
+                    } },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function () {
+                        hljs.initHighlightingOnLoad();
+                    } },
+                    { src: 'plugin/zoom-js/zoom.js', async: true, condition: function () {
+                        return !!document.body.classList;
+                    } },
+                    { src: 'plugin/notes/notes.js', async: true, condition: function () {
+                        return !!document.body.classList;
+                    } }
+                ]
+            });
+
+        </script>
+
+</body>
+</html>

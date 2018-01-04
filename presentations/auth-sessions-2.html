@@ -64,7 +64,8 @@
             <section>
                 <ul>
                     <li>authenticationSession is removed once all Keycloak flows finished (right before redirect back to OIDC/SAML application).</li>
-                    <li>At the same point, userSession with same ID is created and SSO cookies are created</li>
+                    <li>At the same point, userSession with same ID like authenticationSession had is created and SSO cookies are created</li>
+                    <li>AuthenticatedClientSession is created in cache "clientSessions" and bind with userSession. Some client-specific informations are saved there</li>
                 </ul>
             </section>
         </section>
@@ -73,8 +74,10 @@
             <section>
                 <ul>
                     <li>new infinispan cache "authenticationSessions"</li>
-                    <li>Distributed cache with 1 owner by default</li>
                     <li>Cache "sessions" now contains just userSession entities</li>
+                    <li>Cache "clientSessions" now contains just authenticatedClientSession entities</li>
+                    <li>All are distributed caches with 1 owner by default</li>
+                    <li>Configurable in infinispan subsystem in standalone(-ha).xml or domain.xml</li>
                 </ul>
             </section>
             <section>
@@ -94,18 +97,18 @@
             <section>
                 <ul>
                     <li>Sticky session ensures that loadbalancer forwards all requests from same user (browser) to the same backend node</li>
+                    <li>Loadbalancer needs to be configured with AUTH_SESSION_ID as sticky session cookie</li>
                 </ul>
             </section>
             <section>
-                <h3>StickySessionEncoderProvider</h3>
+                <h3>Who creates the cookie?</h3>
                 <ul>
-                    <li>SPI for add the sticky session information to the request</li>
-                    <li>By default it adds route to the AUTH_SESSION_ID cookie as mentioned above</li>
-                    <li>It doesn't necessarily sticky to the itself. Instead it asks infinispan who is the owner</li>
+                    <li>Backend Keycloak server (default and recommended setup)</li>
+                    <li>Loadbalancer</li>
                 </ul>
             </section>
             <section>
-                <h3>Example</h3>
+                <h3>Cookie added by Keycloak server - example</h3>
                 <ul>
                     <li>Initial request processed on node1</li>
                     <li>authentication session with random ID "123" is created</li>
@@ -130,34 +133,15 @@
                     <li>Still not so optimal like attaching route by Keycloak, as session ownership may be changed to different node upon rebalance</li>
                 </ul>
             </section>
-        </section>
-
-        <section>
-            <h2>Java</h2>
-            <ul>
-                <li>AuthenticationSessionProvider - default impl based on infinispan</li>
-                <li>StickySessionProvider - adds sticky sessions to the cookies</li>
-                <li>AuthenticationSessionManager - delegates to the providers above and deals with the AUTH_SESSION_ID cookie etc</li>
-            </ul>
-        </section>
-
-        <section>
-            <h2>UserSessionEntity</h2>
-            <ul>
-                <li>saved in "sessions" cache</li>
-                <li>same ID like authentication session</li>
-                <li>Allows easily detect that authenticationSession is already authenticated</li>
-                <li>Infinispan default hashing strategy will assign userSessionEntity same owner like particular authenticationSessionEntity</li>
-            </ul>
-        </section>
-
-        <section>
-            <h2>AuthenticatedClientSessionEntity</h2>
-            <ul>
-                <li>saved in "clientSessions" cache</li>
-                <li>Contains information related to particular client.</li>
-                <li>created at the same time like userSession (after authentication) and bind with userSessionEntity</li>
-            </ul>
+            <section>
+                <h3>Cookie still exists after authentication</h3>
+                <ul>
+                    <li>Cookie AUTH_SESSION_ID still exists after authentication</li>
+                    <li>Javascript adapter backchannel requests still go to the node, who is owner of userSession</li>
+                    <li>Subsequent SSO requests also go to the same node.</li>
+                    <li>AuthenticationSession with same ID "123" is re-created upon SSO login</li>
+                </ul>
+            </section>
         </section>
 
         <section>

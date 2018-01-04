@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>Authentication sessions</title>
+
+    <meta name="description" content="...">
+    <meta name="author" content="Marek Posolda">
+
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/liveoak.css" id="theme">
+
+    <link href='fonts/fonts.css' rel='stylesheet'
+          type='text/css'>
+
+    <!-- For syntax highlighting -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+        document.write('<link rel="stylesheet" href="css/print/' + ( window.location.search.match(/print-pdf/gi) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">');
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+
+<div class="reveal">
+    <div class="slides">
+
+        <section>
+            <h1>Authentication sessions</h1>
+        </section>
+
+        <section>
+            <section>
+                <h2>Authentication session</h2>
+                <ul>
+                    <li>Replaces ClientSessionModel</li>
+                    <li>authenticationSession is created when OIDC/SAML application redirects to Keycloak login screen</li>
+                    <li>It lives during whole authentication, requiredActions, consents flow</li>
+                </ul>
+            </section>
+            <section>
+                <ul>
+                    <li>authenticationSession is removed once all Keycloak flows finished (right before redirect back to OIDC/SAML application).</li>
+                    <li>At the same point, userSession with same ID is created and SSO cookies are created</li>
+                </ul>
+            </section>
+        </section>
+
+        <section>
+            <section>
+                <ul>
+                    <li>new infinispan cache "authenticationSessions"</li>
+                    <li>Distributed cache with 1 owner by default</li>
+                    <li>Cache "sessions" now contains just userSession entities</li>
+                </ul>
+            </section>
+            <section>
+                <ul>
+                    <li>Authentication session is tracked with the cookie AUTH_SESSION_ID</li>
+                    <li>That cookie also provides session stickiness</li>
+                    <li>Format of the cookie is like &lt;auth-session-id&gt;.&lt;node-id&gt;</li>
+                </ul>
+            </section>
+        </section>
+
+        <section>
+            <section>
+                <h2>Sticky sessions</h2>
+                <img src="pictures/load-balancing-4.png"></img>
+            </section>
+            <section>
+                <ul>
+                    <li>Sticky session ensures that loadbalancer forwards all requests from same user (browser) to the same backend node</li>
+                </ul>
+            </section>
+            <section>
+                <h3>StickySessionEncoderProvider</h3>
+                <ul>
+                    <li>SPI for add the sticky session information to the request</li>
+                    <li>By default it adds route to the AUTH_SESSION_ID cookie as mentioned above</li>
+                    <li>It doesn't necessarily sticky to the itself. Instead it asks infinispan who is the owner</li>
+                </ul>
+            </section>
+            <section>
+                <h3>Example</h3>
+                <ul>
+                    <li>Initial request processed on node1</li>
+                    <li>authentication session with random ID "123" is created</li>
+                    <li>Infinispan distributed cache decides that ID "123" will be saved (owned) by the distributed cache on node2</li>
+                    <li>Keycloak then adds the route to the "node2", not to current "node1"</li>
+                </ul>
+            </section>
+            <section>
+                <ul>
+                    <li>Great performance - session always available locally</li>
+                    <li>When ownership changes (rebalance of distributed cache) route in the cookie is automatically updated</li>
+                    <li>Similar to what Wildfly doing for servlet Http sessions</li>
+                </ul>
+            </section>
+            <section>
+                <h3>Disable route by Keycloak</h3>
+                <ul>
+                    <li>Adding "shouldAttachRoute" to "false" for StickySessionEncoderProvider</li>
+                    <li>See docs: http://www.keycloak.org/docs/latest/server_installation/index.html#sticky-sessions</li>
+                    <li>If route is disabled, Keycloak will use some ID owned by current node</li>
+                    <li>Still not so optimal like attaching route by Keycloak, as session ownership may be changed to different node upon rebalance</li>
+                </ul>
+            </section>
+        </section>
+
+        <section>
+            <h2>Java</h2>
+            <ul>
+                <li>AuthenticationSessionProvider - default impl based on infinispan</li>
+                <li>StickySessionProvider - adds sticky sessions to the cookies</li>
+                <li>AuthenticationSessionManager - delegates to the providers above and deals with the AUTH_SESSION_ID cookie etc</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>UserSessionEntity</h2>
+            <ul>
+                <li>saved in "sessions" cache</li>
+                <li>same ID like authentication session</li>
+                <li>Allows easily detect that authenticationSession is already authenticated</li>
+                <li>Infinispan default hashing strategy will assign userSessionEntity same owner like particular authenticationSessionEntity</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>AuthenticatedClientSessionEntity</h2>
+            <ul>
+                <li>saved in "clientSessions" cache</li>
+                <li>Contains information related to particular client.</li>
+                <li>created at the same time like userSession (after authentication) and bind with userSessionEntity</li>
+            </ul>
+        </section>
+
+        <section>
+            <section>
+                <h2>Example flow</h2>
+                <ul>
+                    <li>User opens login screen</li>
+                    <li>Authentication session "123" created</li>
+                    <li>User authenticates</li>
+                    <li>Authentication session "123" removed and user session "123" created.</li>
+                    <li>AuthenticatedClientSession created and bind with user session "123"</li>
+                </ul>
+            </section>
+            <section>
+                <ul>
+                    <li>Cookie AUTH_SESSION_ID not removed. Will still have value like "123.node1"</li>
+                    <li>User opens login screen for another client - SSO login</li>
+                    <li>Authentication session "123" will be created again.</li>
+                    <li>All requests sticky to same node</li>
+                    <li>After the authentication is finished, authentication session "123" removed again.</li>
+                    <li>Another AuthenticatedClientSession created and bind with user session "123"</li>
+                </ul>
+            </section>
+        </section>
+
+        <section>
+            <h2>Browser buttons</h2>
+            <ul>
+                <li>No additional redirects (improved since last presentation)</li>
+                <li>Small amount of javascript based on "history.replaceState"</li>
+                <li>Old browsers will just ignore that - same behaviour like before</li>
+            </ul>
+        </section>
+
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.min.js"></script>
+
+        <script>
+
+            // Full list of configuration options available here:
+            // https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                controls: true,
+                progress: true,
+                history: true,
+                center: true,
+
+                theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+                transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+                // Parallax scrolling
+                // parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+                // parallaxBackgroundSize: '2100px 900px',
+
+                // Optional libraries used to extend on reveal.js
+                dependencies: [
+                    { src: 'lib/js/classList.js', condition: function () {
+                        return !document.body.classList;
+                    } },
+                    { src: 'plugin/markdown/marked.js', condition: function () {
+                        return !!document.querySelector('[data-markdown]');
+                    } },
+                    { src: 'plugin/markdown/markdown.js', condition: function () {
+                        return !!document.querySelector('[data-markdown]');
+                    } },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function () {
+                        hljs.initHighlightingOnLoad();
+                    } },
+                    { src: 'plugin/zoom-js/zoom.js', async: true, condition: function () {
+                        return !!document.body.classList;
+                    } },
+                    { src: 'plugin/notes/notes.js', async: true, condition: function () {
+                        return !!document.body.classList;
+                    } }
+                ]
+            });
+
+        </script>
+
+</body>
+</html>

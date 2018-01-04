@@ -47,16 +47,19 @@
                 <h2>Authentication session</h2>
                 <ul>
                     <li>Replaces ClientSessionModel</li>
-                    <li>authenticationSession is created when OIDC/SAML application redirects to Keycloak login screen</li>
-                    <li>It lives during whole authentication, requiredActions, consents flow</li>
+                    <li>Tracks the state of authentication</li>
+                    <li>
+                        <ul><li>authentication executions: which authenticators were already tried and with which results</li>
+                            <li>authNotes: notes/attributes, which represents metadata about authentication.</li>
+                            <li>clientNotes and other client informations: Info sent through OIDC/SAML protocol used after authentication is finished (EG. Redirect URI)</li>
+                            </ul>
+                    </li>
                 </ul>
             </section>
             <section>
                 <ul>
-                    <li>Tracks the state of authentication</li>
-                    <li>authentication executions: which authenticators were already tried and with which results</li>
-                    <li>authNotes: notes/attributes, which represents metadata about authentication.</li>
-                    <li>clientNotes and other client informations: Info sent through OIDC/SAML protocol used after authentication is finished (EG. Redirect URI)</li>
+                    <li>authenticationSession is created when OIDC/SAML application redirects to Keycloak login screen</li>
+                    <li>It lives during whole authentication, requiredActions, consents flow</li>
                 </ul>
             </section>
             <section>
@@ -119,8 +122,9 @@
                 </ul>
             </section>
             <section>
-                <h3>Disable route by Keycloak</h3>
+                <h3>Disable adding route by Keycloak</h3>
                 <ul>
+                    <li>Useful when route (node) needs to be added by loadbalancer instead of backend server</li>
                     <li>Adding "shouldAttachRoute" to "false" for StickySessionEncoderProvider</li>
                     <li>See docs: http://www.keycloak.org/docs/latest/server_installation/index.html#sticky-sessions</li>
                     <li>If route is disabled, Keycloak will use some ID owned by current node</li>

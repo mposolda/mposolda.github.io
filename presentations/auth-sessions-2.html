@@ -53,6 +53,14 @@
             </section>
             <section>
                 <ul>
+                    <li>Tracks the state of authentication</li>
+                    <li>authentication executions: which authenticators were already tried and with which results</li>
+                    <li>authNotes: notes/attributes, which represents metadata about authentication.</li>
+                    <li>clientNotes and other client informations: Info sent through OIDC/SAML protocol used after authentication is finished (EG. Redirect URI)</li>
+                </ul>
+            </section>
+            <section>
+                <ul>
                     <li>authenticationSession is removed once all Keycloak flows finished (right before redirect back to OIDC/SAML application).</li>
                     <li>At the same point, userSession with same ID is created and SSO cookies are created</li>
                 </ul>
@@ -147,29 +155,6 @@
                 <li>Contains information related to particular client.</li>
                 <li>created at the same time like userSession (after authentication) and bind with userSessionEntity</li>
             </ul>
-        </section>
-
-        <section>
-            <section>
-                <h2>Example flow</h2>
-                <ul>
-                    <li>User opens login screen</li>
-                    <li>Authentication session "123" created</li>
-                    <li>User authenticates</li>
-                    <li>Authentication session "123" removed and user session "123" created.</li>
-                    <li>AuthenticatedClientSession created and bind with user session "123"</li>
-                </ul>
-            </section>
-            <section>
-                <ul>
-                    <li>Cookie AUTH_SESSION_ID not removed. Will still have value like "123.node1"</li>
-                    <li>User opens login screen for another client - SSO login</li>
-                    <li>Authentication session "123" will be created again.</li>
-                    <li>All requests sticky to same node</li>
-                    <li>After the authentication is finished, authentication session "123" removed again.</li>
-                    <li>Another AuthenticatedClientSession created and bind with user session "123"</li>
-                </ul>
-            </section>
         </section>
 
         <section>

@@ -47,6 +47,12 @@
                 <h2>Authentication session</h2>
                 <ul>
                     <li>Replaces ClientSessionModel</li>
+                    <li>Entity saved in the infinispan cache</li>
+                    <li>Valid through the lifecycle of authentication of user</li>
+                </ul>
+            </section>
+            <section>
+                <ul>
                     <li>Tracks the state of authentication
                         <ul><li>authentication executions: which authenticators were already tried and with which results</li>
                             <li>authNotes: notes/attributes, which represents metadata about authentication.</li>

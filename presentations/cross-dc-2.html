@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>Authentication sessions</title>
+
+    <meta name="description" content="...">
+    <meta name="author" content="Marek Posolda">
+
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/liveoak.css" id="theme">
+
+    <link href='fonts/fonts.css' rel='stylesheet'
+          type='text/css'>
+
+    <!-- For syntax highlighting -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+        document.write('<link rel="stylesheet" href="css/print/' + ( window.location.search.match(/print-pdf/gi) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">');
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+
+<div class="reveal">
+    <div class="slides">
+
+        <section>
+            <h1>Cross DC</h1>
+            Continue
+        </section>
+
+        <section>
+            <section>
+                <h2>Modes</h2>
+                <ul>
+                    <li>Active/active</li>
+                    <li>Active/passive</li>
+                </ul>
+            </section>
+            <section>
+                <h2>Active/active</h2>
+                <ul>
+                    <li>Users and client application send requests to both datacenters</li>
+                    <li>After write on first DC, data need to be immediately visible for reading on second DC</li>
+                    <li>Default settings</li>
+                    <li>Worse performance</li>
+                </ul>
+            </section>
+            <section>
+                <h2>Active/passive</h2>
+                <ul>
+                    <li>Users and client application send requests to one datacenter</li>
+                    <li>Second DC used just as a backup in case of failure of first DC</li>
+                    <li>Better performance</li>
+                </ul>
+            </section>
+        </section>
+
+        <section>
+            <section>
+                <h2>Communication details</h2>
+                <img src="pictures/cross-dc-architecture.png" />
+            </section>
+            <section>
+                <ul>
+                    <li>5 infinispan clusters with 2 datacenters setup</li>
+                    <ul>
+                        <li>Keycloak nodes cluster in site1</li>
+                        <li>JDG nodes cluster in site1</li>
+                        <li>Cluster between JDG nodes on site1 and on site2 (JGroups RELAY2 protocol and backup caches)</li>
+                        <li>JDG nodes cluster in site2</li>
+                        <li>Keycloak nodes cluster in site2</li>
+                    </ul>
+                </ul>
+            </section>
+            <section>
+                <ul>
+                    <li>Keycloak sends message to JDG server on same site</li>
+                    <li>JDG server sends it to JDG server in the other site through RELAY2</li>
+                    <li>JDG server on second site propagates it to Keycloak servers on second site through HotRod protocol (Client listeners)</li>
+                    <li>Keycloak servers listen to events through client listeners and do appropriate actions (Invalidate cache, update session caches)</li>
+                </ul>
+            </section>
+            <section>
+                <ul>
+                    <li>Communication between JDG servers from different sites through RELAY2 protocol.</li>
+                    <li>RELAY2 protocol - configured in JGroups subsystem on JDG server side</li>
+                    <li>Infinispan caches on JDG side - "backup" element</li>
+                </ul>
+            </section>
+            <section>
+                <ul>
+                    <li>Keycloak nodes and JDG nodes in same DC communicate through HotRod protocol</li>
+                    <li>Keycloak infinispan caches are configured with RemoteStore in standalone-ha.xml</li>
+                    <li>JDG server needs to have caches with same names configured on it's side</li>
+                </ul>
+            </section>
+        </section>
+
+        <section>
+            <h2>Basic setup</h2>
+            <ul>
+                <li>Documentation: http://www.keycloak.org/docs/latest/server_installation/index.html#setup</li>
+                <li>Recommended to try this to understand cross-dc better</li>
+            </ul>
+        </section>
+
+        <section>
+            <section>
+                <h2>Cross-DC deployment administration</h2>
+            </section>
+            <section>
+                <h3>Recommended startup order</h3>
+                <ul>
+                    <li>Replicated databases in both datacenters</li>
+                    <li>JDG servers in both datacenters</li>
+                    <li>Keycloak servers in both datacenters</li>
+                </ul>
+            </section>
+            <section>
+                <h3>Requirements</h3>
+                <ul>
+                    <li>Keycloak requires database in his DC to be running</li>
+                    <li>Keycloak requires (at least one) JDG server in his DC to be running</li>
+                    <li>Keycloak doesn't strictly need JDG server on the other DC to be running, but it's recommended</li>
+                    <li>If JDG server on other DC is not running, it means that second datacenter is "offline" from first datacenter PoV</li>
+                </ul>
+            </section>
+        </section>
+
+        <section>
+            <section>
+                <h2>Taking site offline</h2>
+                Datacenter "site2" is considered offline from the "site1" PoV if:
+                <ul>
+                    <li>There are no running JDG servers in site2</li>
+                    <li>Network between site2 and site1 is broken</li>
+                </ul>
+            </section>
+            <section>
+                <h2>Taking site offline</h2>
+                <ul>
+                    <li>Datacenter "site2" is considered offline from the "site1" PoV if:
+                        <ul>
+                            <li>There are no running JDG servers in site2</li>
+                            <li>Network between site2 and site1 is broken</li>
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+            <section>
+                <ul>
+                    <li>"Take site offline" = make sure that site1 consider site2 as offline</li>
+                    <li>When site1 knows that site2 is offline, it will ignore it.</li>
+                </ul>
+            </section>
+            <section>
+                <h3>Manually taking site offline</h3>
+                <ul>
+                    <li>It's possible on JDG server side through JMX (jconsole) or through CLI</li>
+                    <li>Refer to JDG documentation for more details</li>
+                    <li>Site needs to be taken offline separately for every cache or at CacheManager level</li>
+                </ul>
+            </section>
+            <section>
+                <h3>Automatically taking site offline</h3>
+                <ul>
+                    <li>Done through the configuration on JDG side </li>
+                    <li>Element "take-offline" inside "backup" on caches</li>
+                    <li>With our default configuration, site is taken offline after it's unreachable for 60 seconds since first failed request</li>
+                    <li>On Keycloak side, user requests will be blocked for few minutes</li>
+                    <li>Exceptions in JDG server logs about failed backups</li>
+                    <li>Possible to decrease timeout by switch backup policy from FAIL to WARN</li>
+                </ul>
+            </section>
+        </section>
+
+        <section>
+            <section>
+                <h3>Taking site online</h3>
+                <ul>
+                    <li>Can be done once the network between sites is fixed and/or JDG servers on site2 started</li>
+                    <li>Needs to be done manually by admin</li>
+                    <li>JMX or CLI</li>
+                    <li>Other possible needed actions
+                        <ul>
+                            <li>State transfer</li>
+                            <li>Clear Keycloak caches</li>
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+            <section>
+                <h3>State transfer</h3>
+                <ul>
+                    <li>Needs to be done manually</li>
+                    <li>Again through JMX or CLI on JDG server side</li>
+                    <li>Admin needs to decide if bidirectionally or unidirectionaly</li>
+                    <li>Some data may be lost/overwritten</li>
+                </ul>
+            </section>
+            <section>
+                <h3>Clearing caches on Keycloak side</h3>
+                <ul>
+                    <li>Needed if some KC entities were updated, but caches not invalidated during outage</li>
+                    <li>Can be done on single KC server on any site -- should propagate it to all others</li>
+                </ul>
+            </section>
+        </section>
+
+        <section>
+            <section>
+                <h3>Backup policy</h3>
+                <ul>
+                    <li>Configurable on JDG server side</li>
+                    <li>FAIL (default) or WARN</li>
+                    <li>FAIL will propagate backup failures to the caller (Keycloak server)</li>
+                    <li>Keycloak can then retry the operation</li>
+                </ul>
+            </section>
+            <section>
+                <h3>FAIL policy - advantages</h3>
+                <ul>
+                    <li>Consistency of data between sites</li>
+                    <li>Correct behaviour if there is concurrent update of the entity
+                        <ul>
+                            <li>One of the update operations will fail and will be retried</li>
+                        </ul>
+                    </li>
+                    <li>No lost update (write skew)</li>
+                    <li>Correct behaviour if there is shorter outage between sites (EG. few seconds)
+                        <ul>
+                            <li>Because operations will be retried, there won't be lost update</li>
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+            <section>
+                <h3>WARN policy - advantages</h3>
+                <ul>
+                    <li>In case of real longer outage (split-brain), the caller won't be blocked for long time</li>
+                    <li>EG. With site outage, the user logins will be blocked just for 10-30 seconds. With FAIL, 1-3 minutes.</li>
+                </ul>
+            </section>
+            <section>
+                <h3>Conclusion</h3>
+                WARN is better if you don't need 100% consistency AND you expect often split-brains (offline sites)
+            </section>
+        </section>
+
+        <section>
+            <section>
+                <h2>SYNC or ASYNC backups?</h2>
+                <ul>
+                    <li>ASYNC is sufficient for Active/Passive mode for all caches</li>
+                    <li>ASYNC won't notify if backup to the second site failed</li>
+                </ul>
+            </section>
+            <section>
+                <h2>ASYNC for actionTokens cache?</h2>
+                <ul>
+                    <li>ASYNC useful if it's not strictly needed single-use ticket</li>
+                    <li>ASYNC doesn't guarantee the single-use of OAuth2 code, which is REQUIRED per specs</li>
+                    <li>ASYNC - better performance, but worse security</li>
+                </ul>
+            </section>
+            <section>
+                <h2>ASYNC for session caches?</h2>
+                <ul>
+                    <li>Sufficient if all user and client requests end on same DC
+                        <ul>
+                            <li>Case if all frontend clients use javascript adapter</li>
+                            <li>Case if loadbalancer forwards requests based on location and apps are available on both sites too</li>
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+        </section>
+
+
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.min.js"></script>
+
+        <script>
+
+            // Full list of configuration options available here:
+            // https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                controls: true,
+                progress: true,
+                history: true,
+                center: true,
+
+                theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+                transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+                // Parallax scrolling
+                // parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+                // parallaxBackgroundSize: '2100px 900px',
+
+                // Optional libraries used to extend on reveal.js
+                dependencies: [
+                    { src: 'lib/js/classList.js', condition: function () {
+                        return !document.body.classList;
+                    } },
+                    { src: 'plugin/markdown/marked.js', condition: function () {
+                        return !!document.querySelector('[data-markdown]');
+                    } },
+                    { src: 'plugin/markdown/markdown.js', condition: function () {
+                        return !!document.querySelector('[data-markdown]');
+                    } },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function () {
+                        hljs.initHighlightingOnLoad();
+                    } },
+                    { src: 'plugin/zoom-js/zoom.js', async: true, condition: function () {
+                        return !!document.body.classList;
+                    } },
+                    { src: 'plugin/notes/notes.js', async: true, condition: function () {
+                        return !!document.body.classList;
+                    } }
+                ]
+            });
+
+        </script>
+
+</body>
+</html>

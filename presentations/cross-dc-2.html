@@ -40,7 +40,7 @@
 
         <section>
             <h1>Cross DC</h1>
-            Continue
+            Continued
         </section>
 
         <section>
@@ -105,7 +105,7 @@
             <section>
                 <ul>
                     <li>Keycloak nodes and JDG nodes in same DC communicate through HotRod protocol</li>
-                    <li>Keycloak infinispan caches are configured with RemoteStore in standalone-ha.xml</li>
+                    <li>Keycloak infinispan caches are configured with "remote-store" in standalone-ha.xml</li>
                     <li>JDG server needs to have caches with same names configured on it's side</li>
                 </ul>
             </section>
@@ -134,8 +134,8 @@
             <section>
                 <h3>Requirements</h3>
                 <ul>
-                    <li>Keycloak requires database in his DC to be running</li>
-                    <li>Keycloak requires (at least one) JDG server in his DC to be running</li>
+                    <li>Keycloak requires database in its DC to be running</li>
+                    <li>Keycloak requires (at least one) JDG server in its DC to be running</li>
                     <li>Keycloak doesn't strictly need JDG server on the other DC to be running, but it's recommended</li>
                     <li>If JDG server on other DC is not running, it means that second datacenter is "offline" from first datacenter PoV</li>
                 </ul>
@@ -143,14 +143,6 @@
         </section>
 
         <section>
-            <section>
-                <h2>Taking site offline</h2>
-                Datacenter "site2" is considered offline from the "site1" PoV if:
-                <ul>
-                    <li>There are no running JDG servers in site2</li>
-                    <li>Network between site2 and site1 is broken</li>
-                </ul>
-            </section>
             <section>
                 <h2>Taking site offline</h2>
                 <ul>

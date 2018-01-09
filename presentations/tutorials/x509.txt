@@ -1,0 +1,94 @@
+# 1 Create directory and copy file openssl.cfg there
+
+# ASSUME THAT PASSWORDS OF ALL KEYSTORES/TRUSTSTORES/KEYS IS SET TO: secret
+
+# 2 Go to the newly created dir with the openssl.cfg file and run those commands:
+mkdir ca
+mkdir ca/certs
+touch ca/index.txt
+
+# 3 Generate CA certificate and key. 
+
+openssl req -new -x509 -newkey rsa:4096 -keyout ca/ca.key -out ca/ca.crt -days 9125 -extensions v3_ca -config openssl.cfg
+
+# 4 Generate localhost key. Use same country, city, Organization and orgUnit like was for root cert!!!
+
+openssl req -new -newkey rsa:2048 -nodes -keyout localhost.key -out localhost.csr -config openssl.cfg
+
+# 5 Create serial file. Sign localhost with the root CA
+
+echo 01 > ca/serial
+openssl ca -create_serial -days 1095 -in localhost.csr -out localhost.crt -notext -extensions v3_req_sign -config openssl.cfg
+
+# 6 Create sample client certificate and sign it again
+openssl req -new -newkey rsa:2048 -nodes -keyout bwilson.key -out bwilson.csr -config openssl.cfg
+openssl ca -create_serial -days 1095 -in bwilson.csr -out bwilson.crt -notext -extensions v3_req_sign -config openssl.cfg
+
+# 7 Generate CRL file
+
+openssl ca -gencrl -crldays 30 -out ca/ca.crl -keyfile ca/ca.key -cert ca/ca.crt -config openssl.cfg
+
+# 8 Add bwilson certificate into the CRL file 
+
+openssl ca -keyfile ca/ca.key -cert ca/ca.crt -revoke ca/certs/02.pem -config openssl.cfg
+openssl ca -gencrl -crldays 30 -out ca/ca.crl -keyfile ca/ca.key -cert ca/ca.crt -config openssl.cfg
+
+openssl crl -in ca/ca.crl -text -noout
+
+
+# 9 Export bwilson certificate into PKCS12
+
+openssl pkcs12 -export -in bwilson.crt -inkey bwilson.key -out bwilson.pfx
+
+
+# 10 Export bwilson.pfx as a client certificate into the browser (Browser specific steps)
+
+# 11 Create java keystore and import localhost server here
+openssl pkcs12 -export -in localhost.crt -inkey localhost.key -out localhost.pfx
+keytool -importcert -keystore keystore-localhost.jks -file ca/ca.crt
+keytool -importkeystore -destkeystore keystore-localhost.jks -srckeystore localhost.pfx -srcstoretype PKCS12 -srcalias 1 -destalias localhost
+
+
+# 12 SETUP KEYCLOAK
+
+unzip -q /home/mposolda/IdeaProjects/keycloak/distribution/server-dist/target/keycloak-4.0.0.CR1-SNAPSHOT.zip
+cp keystore-localhost.jks keycloak-4.0.0.CR1-SNAPSHOT/standalone/configuration/
+cp ca/ca.crl keycloak-4.0.0.CR1-SNAPSHOT/standalone/configuration/
+
+gedit keycloak-4.0.0.CR1-SNAPSHOT/standalone/configuration/standalone.xml and change this:
+
+
+
+    <security-realm name="ssl-realm">
+        <server-identities>
+            <ssl>
+                <keystore path="keystore-localhost.jks"
+                          relative-to="jboss.server.config.dir"
+                          keystore-password="secret"/>
+            </ssl>
+        </server-identities>
+        <authentication>
+            <truststore path="keystore-localhost.jks"
+                        relative-to="jboss.server.config.dir"
+                        keystore-password="secret"/>
+        </authentication>
+    </security-realm>
+
+
+AND THIS:
+
+            <https-listener name="https"
+                        socket-binding="https"
+                        security-realm="ssl-realm"
+                        verify-client="REQUESTED"/>
+
+# 13 START
+
+cd keycloak-4.0.0.CR1-SNAPSHOT/bin/
+./standalone.sh
+
+# 14 CONFIGURE THE AUTHENTICATOR IN KEYCLOAK ADMIN CONSOLE. See Keycloak docs for the details.
+
+# 15 For the authenticator, if "CRL Checking Enabled" is ON and "CRL File path" is "ca.crl", then bwilson shouldn't be able to authenticate
+
+

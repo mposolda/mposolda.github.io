@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>Cross DC - Keyconf 2019</title>
+
+    <meta name="description" content="...">
+    <meta name="author" content="Marek Posolda">
+
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/liveoak.css" id="theme">
+
+    <link href='fonts/fonts.css' rel='stylesheet'
+          type='text/css'>
+
+    <!-- For syntax highlighting -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+        document.write('<link rel="stylesheet" href="css/print/' + ( window.location.search.match(/print-pdf/gi) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">');
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+
+<div class="reveal">
+    <div class="slides">
+
+        <section>
+            <h1>Cross DC</h1>
+        </section>
+
+        <section>
+            <section>
+                <h2>Cross DC - targets</h2>
+                <ul>
+                    <li>Working deployments with many Keycloak servers in various sites / datacenters</li>
+                    <li>Data consistency - updates to users,realms,sessions done in site1 visible on site2</li>
+                    <li>Performance - Ensure consistency with the minimal amount of messages across sites</li>
+                </ul>
+            </section>
+        </section>
+
+        <section>
+            <section>
+                <h2>Keycloak data</h2>
+                <ul>
+                    <li>Database (RDBMS) - Persistent metadata about realms, clients, roles, users, offline sessions</li>
+                    <li>Infinispan library - used as cache implementation
+                        <ul>
+                            <li>Data caches - Used to avoid many unecessary RDBMS calls
+                                <ul>
+                                    <li>Need to be invalidated when particular object updated in DB</li>
+                                </ul>
+                            </li>
+                            <li>Session caches - Used to handle sessions data
+                                <ul>
+                                    <li>Not persistent across server restarts</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+            <section>
+                <h2>Singlenode deployment</h2>
+                <ul>
+                    <li>Single database (RDBMS) required</li>
+                    <li>Data caches - local infinispan caches</li>
+                    <li>Session caches - local infinispan caches</li>
+                </ul>
+            </section>
+            <section>
+                <h2>Cluster deployment</h2>
+                <ul>
+                    <li>Single database (RDBMS) required
+                        <ul>
+                            <li>All cluster nodes connected to that DB</li>
+                        </ul>
+                    </li>
+                    <li>Data caches - local infinispan caches
+                        <ul>
+                            <li>Special "invalidation" messages sent across cluster nodes</li>
+                        </ul>
+                    </li>
+
+                    <li>Session caches - distributed/replicated infinispan caches</li>
+                </ul>
+            </section>
+            <section>
+                <h2>Cross-DC deployment</h2>
+                <ul>
+                    <li>Replicated database (RDBMS) required
+                        <ul>
+                            <li>MariaDB Galera or Oracle RAC</li>
+                        </ul>
+                    </li>
+                    <li>Infinispan/JDG server
+                        <ul>
+                            <li>Special server process provided by Infinispan</li>
+                            <li>Used to backup sessions data to different DCs</li>
+                            <li>Used to send invalidation messages to different DCs</li>
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+        </section>
+
+        <section>
+            <section>
+                <h2>Communication details</h2>
+                <img src="pictures/cross-dc-architecture.png" />
+            </section>
+            <section>
+                <ul>
+                    <li>5 infinispan clusters with 2 datacenters setup</li>
+                    <ul>
+                        <li>Keycloak nodes cluster in site1</li>
+                        <li>JDG nodes cluster in site1</li>
+                        <li>Cluster between JDG nodes on site1 and on site2 (JGroups RELAY2 protocol and backup caches)</li>
+                        <li>JDG nodes cluster in site2</li>
+                        <li>Keycloak nodes cluster in site2</li>
+                    </ul>
+                </ul>
+            </section>
+            <section>
+                <ul>
+                    <li>Keycloak sends message to JDG server on same site</li>
+                    <li>JDG server sends it to JDG server in the other site through RELAY2</li>
+                    <li>JDG server on second site propagates it to Keycloak servers on second site through HotRod protocol (Client listeners)</li>
+                    <li>Keycloak servers listen to events through client listeners and do appropriate actions (Invalidate cache, update session caches)</li>
+                </ul>
+            </section>
+        </section>
+
+        <section>
+            <section>
+                <h2>Authentication sessions</h2>
+                <ul>
+                    <li>Valid during authentication of user</li>
+                    <li>Data not replicated across sites</li>
+                    <li>Relies on browser sticky session to ensure loadbalancer forwards to same Keycloak node (on same DC)</li>
+                </ul>
+            </section>
+            <section>
+                <h2>Authentication sessions stickyness</h2>
+                <img src="pictures/load-balancing-4.png"></img>
+            </section>
+            <section>
+                <h2>User sessions</h2>
+                <ul>
+                    <li>Created after successful user authentication</li>
+                    <li>Data replicated across sites</li>
+                    <li>Can't rely on browser sticky session due both user and client applications require them</li>
+                </ul>
+            </section>
+        </section>
+
+        <section>
+            <section>
+                <h2>Modes</h2>
+                <ul>
+                    <li>Active/active</li>
+                    <li>Active/passive</li>
+                </ul>
+            </section>
+            <section>
+                <h2>Active/active</h2>
+                <ul>
+                    <li>Users and client application send requests to both datacenters</li>
+                    <li>After write on first DC, data need to be immediately visible for reading on second DC</li>
+                    <li>Default settings</li>
+                    <li>Worse performance</li>
+                </ul>
+            </section>
+            <section>
+                <h2>Active/passive</h2>
+                <ul>
+                    <li>Users and client application send requests to one datacenter</li>
+                    <li>Second DC used just as a backup in case of failure of first DC</li>
+                    <li>Better performance</li>
+                </ul>
+            </section>
+        </section>
+
+        <section>
+            <h2>Basic setup</h2>
+            <ul>
+                <li>Documentation: http://www.keycloak.org/docs/latest/server_installation/index.html#setup</li>
+                <li>Recommended to try this to understand cross-dc better</li>
+            </ul>
+        </section>
+
+        <section>
+            <section>
+                <h2>Cross-DC deployment administration</h2>
+            </section>
+            <section>
+                <h3>Recommended startup order</h3>
+                <ul>
+                    <li>Replicated databases in both datacenters</li>
+                    <li>JDG servers in both datacenters</li>
+                    <li>Keycloak servers in both datacenters</li>
+                </ul>
+            </section>
+            <section>
+                <h3>Requirements</h3>
+                <ul>
+                    <li>Keycloak requires database in its DC to be running</li>
+                    <li>Keycloak requires (at least one) JDG server in its DC to be running</li>
+                    <li>Keycloak doesn't strictly need JDG server on the other DC to be running, but it's recommended</li>
+                    <li>If JDG server on other DC is not running, it means that second datacenter is "offline" from first datacenter PoV</li>
+                </ul>
+            </section>
+            <section>
+                <h3>Migration of Keycloak to newer version</h3>
+                <ul>
+                    <li>Complicated due the requirements above</li>
+                    <li>No rolling upgrade (zero-downtime upgrade) support</li>
+                </ul>
+            </section>
+        </section>
+
+        <section>
+            <section>
+                <h2>Split-brains</h2>
+                <ul>
+                    <li>Datacenters are in different WAN</li>
+                    <li>Bigger chance of network outages and broken connections among sites</li>
+                    <li>JDG/Keycloak has good support for:
+                        <ul>
+                            <li>Automatically detect outages</li>
+                            <li>Manually planned outages (Expected downtimes) - take site offline</li>
+                            <li>Recover from outages</li>
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+        </section>
+
+        <section>
+            <section>
+                <h2>Future</h2>
+                <ul>
+                    <li>Zero downtime support (Rolling upgrade)</li>
+                    <li>Easier deployment
+                        <ul>
+                            <li>No requirement of replicated RDBMS</li>
+                            <li>Just replicated JDG will be required</li>
+                            <li>Should be easier in cloud deployments (Openshift etc)</li>
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+        </section>
+
+
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.min.js"></script>
+
+        <script>
+
+            // Full list of configuration options available here:
+            // https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                controls: true,
+                progress: true,
+                history: true,
+                center: true,
+
+                theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+                transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+                // Parallax scrolling
+                // parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+                // parallaxBackgroundSize: '2100px 900px',
+
+                // Optional libraries used to extend on reveal.js
+                dependencies: [
+                    { src: 'lib/js/classList.js', condition: function () {
+                        return !document.body.classList;
+                    } },
+                    { src: 'plugin/markdown/marked.js', condition: function () {
+                        return !!document.querySelector('[data-markdown]');
+                    } },
+                    { src: 'plugin/markdown/markdown.js', condition: function () {
+                        return !!document.querySelector('[data-markdown]');
+                    } },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function () {
+                        hljs.initHighlightingOnLoad();
+                    } },
+                    { src: 'plugin/zoom-js/zoom.js', async: true, condition: function () {
+                        return !!document.body.classList;
+                    } },
+                    { src: 'plugin/notes/notes.js', async: true, condition: function () {
+                        return !!document.body.classList;
+                    } }
+                ]
+            });
+
+        </script>
+
+</body>
+</html>

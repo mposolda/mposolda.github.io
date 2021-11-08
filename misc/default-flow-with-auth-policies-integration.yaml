@@ -1,0 +1,35 @@
+Cookie ALTERNATIVE
+Authenticate-user ALTERNATIVE
+Kerberos POLICY_BASED (Type "Authenticate with non-browser mechanism", Subtype "Kerberos")
+Idp-Redirector POLICY_BASED (Type "Redirect to IDP")
+Forms ALTERNATIVE
+1st-Factor REQUIRED (See below for the details)
+2nd-Factor POLICY_BASED (Type "2nd-factor", Subtype "Any 2nd-factor", See below for the details)
+
+-------------------------
+
+1st-factor
+Check email domain subflow CONDITIONAL (or POLICY_BASED)
+Condition - check initial screen (Check if the realm switch for "Show email domain" is ON. Alternative is to use policy instead of condition)
+Kerberos (Type "Authenticate with non-browser mechanism", Subtype "Kerberos")
+Idp-Redirector (Type "Redirect to IDP")
+username/password screen CONDITIONAL (or POLICY_BASED)
+Condition - check if realm switch for "Identity first" is OFF (Either condition or authentication policy)
+Username/password form REQUIRED
+identity-first-subflow CONDITIONAL (or POLICY_BASED)
+Condition - check if realm switch for "Identity first" is ON (Either condition or authentication policy)
+Username form REQUIRED
+1st-factor-authentication-of-known user REQUIRED
+Idp-Redirector (Type "Redirect to IDP")
+Kerberos (Type "Authenticate with non-browser mechanism", Subtype "Kerberos")
+1st-factor credential form ALTERNATIVE
+Password POLICY_BASED (Type "Authenticate with 1st-factor", Subtype "Password")
+WebAuthn-passwordless POLICY_BASED (Type "Authenticate with 1st-factor", Subtype "webauthn-passwordless")
+
+----------------------------
+
+2nd-factor
+Condition - User configured (Same behaviour like today. Condition applied just if user already has 2-factor)
+OTP POLICY_BASED (Type "2nd-factor", Subtype "OTP")
+WebAuthn (Type "2nd-factor", Subtype "webauthn")
+Recovery-codes (Type "2nd-factor", Subtype "recovery-codes")

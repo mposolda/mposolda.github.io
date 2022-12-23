@@ -1,0 +1,152 @@
+<html>
+    <head>
+        <title>Mather</title>
+    </head>
+
+    <body onload="startMe()">
+
+    <div id="example">
+        <span id="counter"></span>
+        <h1><span id="exampleText"></span><input id="exampleInput" size="1" /></h1>
+    </div>
+
+    <hr />
+    <div id="examplesTable"></div>
+
+    <hr />
+    <div id="summary"></div>
+
+
+        <script>
+            var MAX_EXAMPLES = 5;
+
+            var state = {
+                counter: 0,
+                ok: 0,
+                errors: 0,
+                examples: []
+            };
+
+            var currentExample = null;
+
+            var randomNumber = function() {
+                return 2 + Math.floor(Math.random() * 9);
+            }
+
+            var getTimestampInSeconds = function() {
+                return Math.floor(Date.now() / 1000)
+            }
+
+            var randomSign = function() {
+                return Math.floor(Math.random() * 2);
+            }
+
+            function Example() {
+                this.x = randomNumber();
+                this.y = randomNumber();
+                this.sign = randomSign();
+
+                this.result = this.x * this.y;
+                this.asStr;
+
+                // Example for dividing
+                if (this.sign === 1) {
+                    var tmp = this.x;
+                    this.x = this.result;
+                    this.result = tmp;
+
+                    this.asStr = this.x + ' : ' + this.y + ' = ';
+                } else {
+                    this.asStr = this.x + ' * ' + this.y + ' = ';
+                }
+
+                this.startTime = getTimestampInSeconds();
+
+            }
+
+            function restartExample() {
+                state.counter += 1;
+                currentExample = new Example();
+                console.log('Helloo: ' + currentExample.asStr);
+
+                document.getElementById('counter').innerHTML = 'Příklad ' + state.counter;
+                document.getElementById('exampleText').innerHTML = currentExample.asStr;
+
+                var myInput = document.getElementById('exampleInput');
+                myInput.value = '';
+                myInput.focus();
+            }
+
+            function renderTable() {
+                var str = '<table border><tr><th>Příklad</th><th>Správný výsledek</th><th>Napsaný výsledek</th><th></th><th>Čas (sekundy)</th></tr>';
+                var len = state.examples.length;
+                for (let i = 0; i < len; i++) {
+                    var ex = state.examples[i];
+                    str += "<tr>";
+                    str += "<td>" + ex.asStr + "</td>";
+                    str += "<td>" + ex.result + "</td>";
+
+                    str += "<td>" + ex.usedResult + "</td>";
+
+                    var okState = ex.goodResult ? "OK" : "CHYBA";
+                    var bgColor = ex.goodResult ? "#66ff66" : "#ff6666";
+                    str += '<td style="background-color: ' + bgColor + '">' + okState + "</td>";
+                    str += '<td>' + ex.time +'</td>';
+
+                    str += "</tr>";
+                }
+                str += '</table>';
+                return str;
+            }
+
+            function renderSummary() {
+                // Hide the example. Exam is finished
+                document.getElementById('example').style = 'display: none';
+
+                var str = "<h1>Dopočítáno </h1><br />";
+                str += "<b>Správně: " + state.ok + "<br />";
+                str += "Chyby: " + state.errors + "<br />";
+                str += "Čas celkem: " + (getTimestampInSeconds() - state.examples[0].startTime) + " sekund<br />";
+                str += "</b>";
+                document.getElementById('summary').innerHTML = str;
+            }
+
+            function startMe() {
+
+                document.getElementById('exampleInput').addEventListener("keypress", function(event) {
+                    if (event.key === "Enter") {
+                        console.log('Hello here: ' + document.getElementById('exampleInput').value);
+
+                        // Evaluate and push current example
+                        currentExample.usedResult = document.getElementById('exampleInput').value;
+                        currentExample.time = getTimestampInSeconds() - currentExample.startTime;
+                        currentExample.goodResult = currentExample.result == currentExample.usedResult;
+
+                        if (currentExample.goodResult) {
+                            state.ok += 1;
+                        } else {
+                            state.errors += 1;
+                        }
+
+                        state.examples.push(currentExample);
+
+                        document.getElementById('examplesTable').innerHTML = renderTable();
+
+                        // Check if we're already finished. If yes, render summary. If not, create new example
+                        if (state.counter === MAX_EXAMPLES) {
+                            renderSummary();
+                        } else {
+                            restartExample();
+                        }
+                    } else if (event.key >= "0" && event.key <= "9") {
+                        //document.getElementById('exampleInput').value = document.getElementById('exampleInput').value + event.key;
+                    }
+                });
+
+                restartExample();
+            }
+
+
+        </script>
+    </body>
+</html>

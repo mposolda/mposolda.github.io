@@ -14,18 +14,19 @@
     <div id="examplesTable"></div>
 
     <hr />
-    <div id="summary"></div>
+    <div id="summary" style="margin-left: auto; margin-right: auto; width: 1024px;"></div>
 
 
         <script>
             var settings = {
-                examplesCount: 5
+                examplesCount: 10
             }
 
             var state = {
                 counter: 0,
                 ok: 0,
                 errors: 0,
+                totalTime: null, // Filled once whole exam is finished
                 examples: []
             };
 
@@ -112,13 +113,42 @@
             }
 
             var renderSummary = function() {
+                var picture;
+                var evaluation;
+
+                var computePictureAndEvaluation = function() {
+                    if (state.errors >= state.ok) {
+                        picture = '01_vrak.jpg';
+                        evaluation = 'Máš co zlepšovat. Zkus to znovu. Určitě se to povede líp.';
+                    } else if (state.errors * 3 >= state.ok) {
+                        picture = '02_trabant.jpg';
+                        evaluation = 'Není to tak zlý. Ale ani žádná sláva. Zkus to znovu. Určitě se to povede líp.';
+                    } else if (state.errors > 1) {
+                        picture = '03_skoda.jpeg';
+                        evaluation = 'Dost dobrý! Zkus to znovu a budeš možná ještě lepší.';
+                    } else if (state.errors == 1) {
+                        picture = '04_tucson.jpg';
+                        evaluation = 'Super! Jen jedna chyba. Dá se to ještě trošku líp.';
+                    } else if (state.errors == 0 && state.totalTime > (state.examples.length * 4)) {
+                        picture = '05_ferrari.jpg';
+                        evaluation = 'Super! Žádná chyba. Teď ještě můžeš trochu zlepšit rychlost.';
+                    } else {
+                        picture = '06_formule.jpg';
+                        evaluation = 'Super! Jsi nejlepší!';
+                    }
+                }
+
+                computePictureAndEvaluation();
+
                 // Hide the example. Exam is finished
                 document.getElementById('example').style = 'display: none';
 
-                var str = "<h1>Dopočítáno </h1><br />";
+                var str = "<br />";
+                str += '<img src="' + picture + '" style="width: 60%"></img><br />';
+                str += evaluation + '<br /><br />';
                 str += "<b>Správně: " + state.ok + "<br />";
                 str += "Chyby: " + state.errors + "<br />";
-                str += "Čas celkem: " + (getTimestampInSeconds() - state.examples[0].startTime) + " sekund<br />";
+                str += "Čas celkem: " + state.totalTime + " sekund<br />";
                 str += "</b>";
                 document.getElementById('summary').innerHTML = str;
             }
@@ -145,6 +175,7 @@
 
                 // Check if we're already finished. If yes, render summary. If not, create new example
                 if (state.counter === settings.examplesCount) {
+                    state.totalTime = getTimestampInSeconds() - state.examples[0].startTime;
                     renderSummary();
                 } else {
                     restartExample();
@@ -152,6 +183,7 @@
             }
 
 
+            // Executed on startup
             var startMe = function() {
                 document.getElementById('exampleInput').addEventListener("keypress", function(event) {
                     if (event.key === "Enter") {

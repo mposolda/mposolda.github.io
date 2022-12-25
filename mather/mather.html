@@ -32,6 +32,7 @@
 
             var currentExample = null;
 
+            // Randome number from 2 to 10
             var randomNumber = function() {
                 return 2 + Math.floor(Math.random() * 9);
             }
@@ -40,6 +41,7 @@
                 return Math.floor(Date.now() / 1000)
             }
 
+            // Multiply or divide
             var randomSign = function() {
                 return Math.floor(Math.random() * 2);
             }
@@ -115,25 +117,40 @@
             var renderSummary = function() {
                 var picture;
                 var evaluation;
+                var levelů
 
                 var computePictureAndEvaluation = function() {
                     if (state.errors >= state.ok) {
+                        level = 1;
                         picture = '01_vrak.jpg';
                         evaluation = 'Máš co zlepšovat. Zkus to znovu. Určitě se to povede líp.';
                     } else if (state.errors * 3 >= state.ok) {
+                        level = 2;
                         picture = '02_trabant.jpg';
                         evaluation = 'Není to tak zlý. Ale ani žádná sláva. Zkus to znovu. Určitě se to povede líp.';
                     } else if (state.errors > 1) {
+                        level = 3;
                         picture = '03_skoda.jpeg';
                         evaluation = 'Dost dobrý! Zkus to znovu a budeš možná ještě lepší.';
                     } else if (state.errors == 1) {
+                        level = 4;
                         picture = '04_tucson.jpg';
                         evaluation = 'Super! Jen jedna chyba. Dá se to ještě trošku líp.';
-                    } else if (state.errors == 0 && state.totalTime > (state.examples.length * 4)) {
+                    } else if (state.errors == 0 && state.totalTime > (state.examples.length * 16)) {
+                        level = 5;
                         picture = '05_ferrari.jpg';
+                        evaluation = 'Super! Žádná chyba. Teď ještě můžeš zlepšit rychlost.';
+                    } else if (state.errors == 0 && state.totalTime > (state.examples.length * 10)) {
+                        level = 6;
+                        picture = '06_porshe.jpg';
                         evaluation = 'Super! Žádná chyba. Teď ještě můžeš trochu zlepšit rychlost.';
+                    } else if (state.errors == 0 && state.totalTime > (state.examples.length * 5)) {
+                        level = 7;
+                        picture = '07_formule-saab.jpg';
+                        evaluation = 'Super! Žádná chyba. Teď ještě můžeš trošililinku zlepšit rychlost.';
                     } else {
-                        picture = '06_formule.jpg';
+                        level = 8;
+                        picture = '08_formule1.jpg';
                         evaluation = 'Super! Jsi nejlepší!';
                     }
                 }
@@ -146,6 +163,7 @@
                 var str = "<br />";
                 str += '<img src="' + picture + '" style="width: 60%"></img><br />';
                 str += evaluation + '<br /><br />';
+                str += "<b>Level " + level + " z 8.<br />";
                 str += "<b>Správně: " + state.ok + "<br />";
                 str += "Chyby: " + state.errors + "<br />";
                 str += "Čas celkem: " + state.totalTime + " sekund<br />";

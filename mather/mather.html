@@ -32,7 +32,7 @@
 
             var currentExample = null;
 
-            // Randome number from 2 to 10
+            // Random number from 2 to 10
             var randomNumber = function() {
                 return 2 + Math.floor(Math.random() * 9);
             }
@@ -93,7 +93,7 @@
             }
 
             var renderTable = function() {
-                var str = '<table border><tr><th>Příklad</th><th>Správný výsledek</th><th>Napsaný výsledek</th><th></th><th>Čas (sekundy)</th></tr>';
+                var str = '<table border><tr><th>Příklad</th><th>Správný výsledek</th><th>Napsaný výsledek</th><th></th></tr>';
                 var len = state.examples.length;
                 for (let i = 0; i < len; i++) {
                     var ex = state.examples[i];
@@ -106,7 +106,6 @@
                     var okState = ex.goodResult ? "OK" : "CHYBA";
                     var bgColor = ex.goodResult ? "#66ff66" : "#ff6666";
                     str += '<td style="background-color: ' + bgColor + '">' + okState + "</td>";
-                    str += '<td>' + ex.time +'</td>';
 
                     str += "</tr>";
                 }
@@ -117,7 +116,7 @@
             var renderSummary = function() {
                 var picture;
                 var evaluation;
-                var levelů
+                var level;
 
                 var computePictureAndEvaluation = function() {
                     if (state.errors >= state.ok) {
@@ -162,11 +161,9 @@
 
                 var str = "<br />";
                 str += '<img src="' + picture + '" style="width: 60%"></img><br />';
-                str += evaluation + '<br /><br />';
                 str += "<b>Level " + level + " z 8.<br />";
                 str += "<b>Správně: " + state.ok + "<br />";
                 str += "Chyby: " + state.errors + "<br />";
-                str += "Čas celkem: " + state.totalTime + " sekund<br />";
                 str += "</b>";
                 document.getElementById('summary').innerHTML = str;
             }

@@ -28,7 +28,7 @@
                 state.counter += 1;
 
                 // TODO: better way (factory function or something like that)
-                currentExample = config.getExampleType() === 'smallMultiplication' ? new SmallMultiplicationExample() : new WeightsExample();
+                currentExample = config.getExampleFactory().createExample();
 
 
                 console.log('New example created: ' + currentExample.asStr + "_" + currentExample.asStrAfter);

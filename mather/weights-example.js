@@ -6,6 +6,17 @@ var weights = [
   { type: "t", toSmallest:   1000000000 }
 ]
 
+class WeightsExampleFactory {
+
+  createExample() {
+    return new WeightsExample();
+  }
+
+  getLevelFromState(state) {
+    // TODO
+    return 1;
+  }
+}
 
 // Example for small multiplication
 class WeightsExample extends Example {

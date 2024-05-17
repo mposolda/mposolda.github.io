@@ -1,3 +1,14 @@
+class ExampleFactory {
+
+  createExample() {
+    return null;
+  }
+
+  getLevelFromState(state) {
+    return 1;
+  }
+}
+
 class Example {
 
 

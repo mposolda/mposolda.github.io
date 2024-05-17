@@ -1,6 +1,7 @@
 class Config {
   #examplesCount = 2;
   #exampleType;
+  #exampleFactory;
 
   getExamplesCount() {
     return this.#examplesCount;
@@ -18,6 +19,14 @@ class Config {
     this.#exampleType = exampleType;
   }
 
+  getExampleFactory() {
+    return this.#exampleFactory;
+  }
+
+  setExampleFactory(exampleFactory) {
+    this.#exampleFactory = exampleFactory;
+  }
+
   toString() {
     return "examplesCount=" + this.#examplesCount + ", exampleType=" + this.#exampleType;
   }
@@ -29,6 +38,8 @@ class ConfigProvider {
     var exampleType = this.#getSelectedExampleType();
 
     config.setExampleType(exampleType);
+    var exampleFactory = exampleType === 'smallMultiplication' ? new SmallMultiplicationExampleFactory() : new WeightsExampleFactory();
+    config.setExampleFactory(exampleFactory);
 
     console.log("Configuration confirmed: " + config.toString());
     mather.startMe();

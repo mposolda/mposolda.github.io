@@ -1,3 +1,16 @@
+class SmallMultiplicationExampleFactory {
+
+  createExample() {
+    return new SmallMultiplicationExample();
+  }
+
+  getLevelFromState(state) {
+    // TODO
+    return 1;
+  }
+}
+
+
 // Example for small multiplication
 class SmallMultiplicationExample extends Example {
 

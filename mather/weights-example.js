@@ -24,6 +24,11 @@ class WeightsExample extends Example {
 
     this.#higherUnitsCount = randomNumber(1, 9);
 
+    // Higher units can be either something like "8" or "80"
+    if (randomNumber(0, 1) === 1) {
+      this.#higherUnitsCount = this.#higherUnitsCount * 10;
+    }
+
     // Generate smaller units. Can be either 1 or 2 degrees below
     this.#smallerUnits = this.#higherUnits === 1 ? 0 : this.#higherUnits - randomNumber(1, 2);
 

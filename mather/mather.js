@@ -27,7 +27,7 @@
             var restartExample = function() {
                 state.counter += 1;
 
-                // TODO: better way
+                // TODO: better way (factory function or something like that)
                 currentExample = config.getExampleType() === 'smallMultiplication' ? new SmallMultiplicationExample() : new WeightsExample();
 
 

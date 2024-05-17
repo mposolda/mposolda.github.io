@@ -9,8 +9,8 @@
             var currentExample = null;
 
             // Random number from 2 to 10
-            var randomNumber = function() {
-                return 2 + Math.floor(Math.random() * 9);
+            var randomNumber = function(from, to) {
+                return from + Math.floor(Math.random() * (to - from + 1));
             }
 
             var getTimestampInSeconds = function() {
@@ -23,42 +23,60 @@
             }
 
 
-            function Example() {
-                this.x = randomNumber();
-                this.y = randomNumber();
-                this.sign = randomSign();
+class Example {
 
-                this.result = this.x * this.y;
-                this.asStr;
 
-                // Example for dividing
-                if (this.sign === 1) {
-                    var tmp = this.x;
-                    this.x = this.result;
-                    this.result = tmp;
+  // Timestamp (in seconds) when example was started
+  startTime = getTimestampInSeconds();
 
-                    this.asStr = this.x + ' : ' + this.y + ' = ';
-                } else {
-                    this.asStr = this.x + ' * ' + this.y + ' = ';
-                }
+  // Time example took (in seconds). It is set once example is computed
+  time;
 
-                // Timestamp (in seconds) when example was started
-                this.startTime = getTimestampInSeconds();
+  // Correct result of this example
+  result;
 
-                // Time example took (in seconds). It is set once example is computed
-                this.time;
+  // Result filled by child. It is set once example is computed
+  usedResult;
 
-                // Result filled by child. It is set once example is computed
-                this.usedResult;
+  // Helper boolean value specifying if computation was successful or not. It is set once example is computed
+  goodResult;
 
-                // Helper boolean value specifying if computation was successful or not. It is set once example is computed
-                this.goodResult;
-            }
+  // String representation of this example
+  asStr;
+
+}
+
+// Example for small multiplication
+class SmallMultiplicationExample extends Example {
+
+  #x = randomNumber(2, 10);
+  #y = randomNumber(2, 10);
+
+  // 0 is multiply, 1 is divide
+  #sign = randomNumber(0, 1);
+
+  result = this.#x * this.#y;
+
+  // Example for dividing
+  constructor() {
+    super();
+    if (this.#sign === 1) {
+      var tmp = this.#x;
+      this.#x = this.result;
+      this.result = tmp;
+      this.asStr = this.#x + ' : ' + this.#y + ' = ';
+    } else {
+      this.asStr = this.#x + ' * ' + this.#y + ' = ';
+    }
+  }
+
+}
+
 
             // Create new example now
             var restartExample = function() {
                 state.counter += 1;
-                currentExample = new Example();
+                currentExample = new SmallMultiplicationExample();
                 console.log('New example created: ' + currentExample.asStr);
 
                 document.getElementById('counter').innerHTML = 'Příklad ' + state.counter;

@@ -2,23 +2,35 @@
     <head>
         <title>Mather</title>
 
+        <script src="./config.js">
+        </script>
         <script src="./mather.js">
         </script>
 
     </head>
 
-    <body onload="startMe()">
+    <body>
 
-    <div id="example">
+      <div id="configArea">
+          <p><b>Zvol typ příkladů: </b></p>
+          <input type="radio" id="malaNasobilka" name="examplesType" value="Malá násobilka" checked>
+          <label for="malaNasobilka">Malá násobilka</label><br>
+          <input type="radio" id="weights" name="examplesType" value="Převody jednotek hmotnosti">
+          <label for="weights">Převody jednotek hmotnosti"</label><br>
+          <br />
+          <button value="Start" onclick="configProvider.confirmConfig()">Start</button>
+      </div>
+
+      <div id="example" style="display: none">
         <span id="counter"></span>
         <h1><span id="exampleText"></span><input id="exampleInput" size="1" /></h1>
-    </div>
+      </div>
 
-    <hr />
-    <div id="examplesTable"></div>
+      <hr />
+      <div id="examplesTable"></div>
 
-    <hr />
-    <div id="summary" style="margin-left: auto; margin-right: auto; width: 1024px;"></div>
+      <hr />
+      <div id="summary" style="margin-left: auto; margin-right: auto; width: 1024px;"></div>
 
     </body>
 </html>

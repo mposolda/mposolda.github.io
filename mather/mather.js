@@ -1,7 +1,3 @@
-            var settings = {
-                examplesCount: 10
-            }
-
             var state = {
                 counter: 0,
                 ok: 0,
@@ -25,6 +21,7 @@
             var randomSign = function() {
                 return Math.floor(Math.random() * 2);
             }
+
 
             function Example() {
                 this.x = randomNumber();
@@ -169,7 +166,7 @@
                 document.getElementById('examplesTable').innerHTML = renderTable();
 
                 // Check if we're already finished. If yes, render summary. If not, create new example
-                if (state.counter === settings.examplesCount) {
+                if (state.counter === config.getExamplesCount()) {
                     state.totalTime = getTimestampInSeconds() - state.examples[0].startTime;
                     renderSummary();
                 } else {
@@ -178,8 +175,12 @@
             }
 
 
-            // Executed on startup
-            var startMe = function() {
+class Mather {
+
+  startMe() {
+    document.getElementById('configArea').style = 'display: none';
+    document.getElementById('example').style = 'display: inline';
+
                 document.getElementById('exampleInput').addEventListener("keypress", function(event) {
                     if (event.key === "Enter") {
                         onEnterKey();
@@ -189,4 +190,8 @@
                 });
 
                 restartExample();
-            }
+  }
+
+}
+
+var mather = new Mather();

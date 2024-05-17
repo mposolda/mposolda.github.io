@@ -18,7 +18,7 @@ class Config {
     this.#exampleType = exampleType;
   }
 
-  toStringg() {
+  toString() {
     return "examplesCount=" + this.#examplesCount + ", exampleType=" + this.#exampleType;
   }
 }
@@ -30,7 +30,7 @@ class ConfigProvider {
 
     config.setExampleType(exampleType);
 
-    console.log("Configuration confirmed: " + config.toStringg());
+    console.log("Configuration confirmed: " + config.toString());
     mather.startMe();
   }
 

@@ -23,64 +23,19 @@
             }
 
 
-class Example {
-
-
-  // Timestamp (in seconds) when example was started
-  startTime = getTimestampInSeconds();
-
-  // Time example took (in seconds). It is set once example is computed
-  time;
-
-  // Correct result of this example
-  result;
-
-  // Result filled by child. It is set once example is computed
-  usedResult;
-
-  // Helper boolean value specifying if computation was successful or not. It is set once example is computed
-  goodResult;
-
-  // String representation of this example
-  asStr;
-
-}
-
-// Example for small multiplication
-class SmallMultiplicationExample extends Example {
-
-  #x = randomNumber(2, 10);
-  #y = randomNumber(2, 10);
-
-  // 0 is multiply, 1 is divide
-  #sign = randomNumber(0, 1);
-
-  result = this.#x * this.#y;
-
-  // Example for dividing
-  constructor() {
-    super();
-    if (this.#sign === 1) {
-      var tmp = this.#x;
-      this.#x = this.result;
-      this.result = tmp;
-      this.asStr = this.#x + ' : ' + this.#y + ' = ';
-    } else {
-      this.asStr = this.#x + ' * ' + this.#y + ' = ';
-    }
-  }
-
-}
-
-
             // Create new example now
             var restartExample = function() {
                 state.counter += 1;
-                currentExample = new SmallMultiplicationExample();
-                console.log('New example created: ' + currentExample.asStr);
+
+                // TODO: better way
+                currentExample = config.getExampleType() === 'smallMultiplication' ? new SmallMultiplicationExample() : new WeightsExample();
+
+
+                console.log('New example created: ' + currentExample.asStr + "_" + currentExample.asStrAfter);
 
                 document.getElementById('counter').innerHTML = 'Příklad ' + state.counter;
                 document.getElementById('exampleText').innerHTML = currentExample.asStr;
+                document.getElementById('exampleTextAfter').innerHTML = currentExample.asStrAfter;
 
                 var myInput = document.getElementById('exampleInput');
                 myInput.value = '';
@@ -93,7 +48,7 @@ class SmallMultiplicationExample extends Example {
                 for (let i = 0; i < len; i++) {
                     var ex = state.examples[i];
                     str += "<tr>";
-                    str += "<td>" + ex.asStr + "</td>";
+                    str += "<td>" + ex.asStr + "_" + ex.asStrAfter + "</td>";
                     str += "<td>" + ex.result + "</td>";
 
                     str += "<td>" + ex.usedResult + "</td>";

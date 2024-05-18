@@ -5,8 +5,26 @@ class SmallMultiplicationExampleFactory {
   }
 
   getLevelFromState(state) {
-    // TODO
-    return 1;
+    var level;
+    if (state.errors >= state.ok) {
+      level = 1;
+    } else if (state.errors * 3 >= state.ok) {
+      level = 2;
+    } else if (state.errors > 1) {
+      level = 3;
+    } else if (state.errors == 1) {
+      level = 4;
+    } else if (state.errors == 0 && state.totalTime > (state.examples.length * 16)) {
+      level = 5;
+    } else if (state.errors == 0 && state.totalTime > (state.examples.length * 10)) {
+      level = 6;
+    } else if (state.errors == 0 && state.totalTime > (state.examples.length * 5)) {
+      level = 7;
+    } else {
+      level = 8;
+    }
+    console.log("SmallMultiplication: Computed level " + level);
+    return level;
   }
 
   getDefaultExamplesCount() {

@@ -1,3 +1,29 @@
+// Not used right now
+var EVALUATION_TEXTS = [
+  "Máš co zlepšovat. Zkus to znovu. Určitě se to povede líp.",
+  "Není to tak zlý. Ale ani žádná sláva. Zkus to znovu. Určitě se to povede líp.",
+  "Dost dobrý! Zkus to znovu a budeš možná ještě lepší.",
+  "Super! Jen jedna chyba. Dá se to ještě trošku líp.",
+  "Super! Žádná chyba. Teď ještě můžeš zlepšit rychlost.",
+  "Super! Žádná chyba. Teď ještě můžeš trochu zlepšit rychlost.",
+  "Super! Žádná chyba. Teď ještě můžeš trošililinku zlepšit rychlost.",
+  "Super! Jsi nejlepší!"
+];
+
+var PICTURES_CARS = [
+  "01_vrak.jpg",
+  "02_trabant.jpg",
+  "03_skoda.jpeg",
+  "04_tucson.jpg",
+  "05_ferrari.jpg",
+  "06_porshe.jpg",
+  "07_formule-saab.jpg",
+  "08_formule1.jpg"
+];
+
+// TODO: More "types" of pictures
+var PICTURES = PICTURES_CARS;
+
             var state = {
                 counter: 0,
                 ok: 0,
@@ -27,7 +53,6 @@
             var restartExample = function() {
                 state.counter += 1;
 
-                // TODO: better way (factory function or something like that)
                 currentExample = config.getExampleFactory().createExample();
 
 
@@ -64,47 +89,9 @@
             }
 
             var renderSummary = function() {
-                var picture;
-                var evaluation;
-                var level;
-
-                var computePictureAndEvaluation = function() {
-                    if (state.errors >= state.ok) {
-                        level = 1;
-                        picture = '01_vrak.jpg';
-                        evaluation = 'Máš co zlepšovat. Zkus to znovu. Určitě se to povede líp.';
-                    } else if (state.errors * 3 >= state.ok) {
-                        level = 2;
-                        picture = '02_trabant.jpg';
-                        evaluation = 'Není to tak zlý. Ale ani žádná sláva. Zkus to znovu. Určitě se to povede líp.';
-                    } else if (state.errors > 1) {
-                        level = 3;
-                        picture = '03_skoda.jpeg';
-                        evaluation = 'Dost dobrý! Zkus to znovu a budeš možná ještě lepší.';
-                    } else if (state.errors == 1) {
-                        level = 4;
-                        picture = '04_tucson.jpg';
-                        evaluation = 'Super! Jen jedna chyba. Dá se to ještě trošku líp.';
-                    } else if (state.errors == 0 && state.totalTime > (state.examples.length * 16)) {
-                        level = 5;
-                        picture = '05_ferrari.jpg';
-                        evaluation = 'Super! Žádná chyba. Teď ještě můžeš zlepšit rychlost.';
-                    } else if (state.errors == 0 && state.totalTime > (state.examples.length * 10)) {
-                        level = 6;
-                        picture = '06_porshe.jpg';
-                        evaluation = 'Super! Žádná chyba. Teď ještě můžeš trochu zlepšit rychlost.';
-                    } else if (state.errors == 0 && state.totalTime > (state.examples.length * 5)) {
-                        level = 7;
-                        picture = '07_formule-saab.jpg';
-                        evaluation = 'Super! Žádná chyba. Teď ještě můžeš trošililinku zlepšit rychlost.';
-                    } else {
-                        level = 8;
-                        picture = '08_formule1.jpg';
-                        evaluation = 'Super! Jsi nejlepší!';
-                    }
-                }
-
-                computePictureAndEvaluation();
+                var level = config.getExampleFactory().getLevelFromState(state);
+                var picture = PICTURES[level - 1];
+                var evaluation = EVALUATION_TEXTS[level - 1];
 
                 // Hide the example. Exam is finished
                 document.getElementById('example').style = 'display: none';

@@ -40,6 +40,7 @@ class ConfigProvider {
     config.setExampleType(exampleType);
     var exampleFactory = exampleType === 'smallMultiplication' ? new SmallMultiplicationExampleFactory() : new WeightsExampleFactory();
     config.setExampleFactory(exampleFactory);
+    config.setExamplesCount(exampleFactory.getDefaultExamplesCount());
 
     console.log("Configuration confirmed: " + config.toString());
     mather.startMe();

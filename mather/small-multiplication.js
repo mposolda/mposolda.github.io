@@ -8,6 +8,10 @@ class SmallMultiplicationExampleFactory {
     // TODO
     return 1;
   }
+
+  getDefaultExamplesCount() {
+    return 10;
+  }
 }
 
 

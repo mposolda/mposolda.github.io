@@ -16,6 +16,10 @@ class WeightsExampleFactory {
     // TODO
     return 1;
   }
+
+  getDefaultExamplesCount() {
+    return 5;
+  }
 }
 
 // Example for small multiplication

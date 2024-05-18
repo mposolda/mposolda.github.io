@@ -7,6 +7,11 @@ class ExampleFactory {
   getLevelFromState(state) {
     return 1;
   }
+
+  // Default count of examples for this type
+  getDefaultExamplesCount() {
+    return 2;
+  }
 }
 
 class Example {

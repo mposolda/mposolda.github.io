@@ -11,18 +11,31 @@ var EVALUATION_TEXTS = [
 ];
 
 var PICTURES_CARS = [
-  "01_vrak.jpg",
-  "02_trabant.jpg",
-  "03_skoda.jpeg",
-  "04_tucson.jpg",
-  "05_ferrari.jpg",
-  "06_porshe.jpg",
-  "07_formule-saab.jpg",
-  "08_formule1.jpg"
+  "cars/01_vrak.jpg",
+  "cars/02_trabant.jpg",
+  "cars/03_skoda.jpeg",
+  "cars/04_tucson.jpg",
+  "cars/05_ferrari.jpg",
+  "cars/06_porshe.jpg",
+  "cars/07_formule-saab.jpg",
+  "cars/08_formule1.jpg"
 ];
 
-// TODO: More "types" of pictures
-var PICTURES = PICTURES_CARS;
+var PICTURES_RABBITS = [
+  "rabbits/01_chlupac.jpg",
+  "rabbits/02_sedoch.jpg",
+  "rabbits/03_cesky-lustic.jpg",
+  "rabbits/04_teddy.jpg",
+  "rabbits/05_fit.jpeg",
+  "rabbits/06_kralicek-slamak.jpg",
+  "rabbits/07_zvykac.jpg",
+  "rabbits/08_tonda.jpg"
+];
+
+var getPicture = function(level) {
+  var pictures = config.getPictureType() == "picturesCars" ? PICTURES_CARS : PICTURES_RABBITS;
+  return pictures[level - 1];
+}
 
             var state = {
                 counter: 0,
@@ -90,7 +103,8 @@ var PICTURES = PICTURES_CARS;
 
             var renderSummary = function() {
                 var level = config.getExampleFactory().getLevelFromState(state);
-                var picture = PICTURES[level - 1];
+                var picture = getPicture(level);
+                console.log("Picture: " + picture);
                 var evaluation = EVALUATION_TEXTS[level - 1];
 
                 // Hide the example. Exam is finished

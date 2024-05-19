@@ -1,4 +1,4 @@
-class SmallMultiplicationExampleFactory {
+class SmallMultiplicationExampleFactory extends ExampleFactory {
 
   createExample() {
     return new SmallMultiplicationExample();

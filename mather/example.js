@@ -1,9 +1,11 @@
 class ExampleFactory {
 
+  // Creating "example" of this factory
   createExample() {
     return null;
   }
 
+  // Compute "level" from the results. This is triggered after computation is fully finished
   getLevelFromState(state) {
     return 1;
   }

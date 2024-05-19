@@ -6,7 +6,7 @@ var weights = [
   { type: "t", toSmallest:   1000000000 }
 ]
 
-class WeightsExampleFactory {
+class WeightsExampleFactory extends ExampleFactory {
 
   createExample() {
     return new WeightsExample();
@@ -41,7 +41,7 @@ class WeightsExampleFactory {
   }
 }
 
-// Example for small multiplication
+// Example for weights
 class WeightsExample extends Example {
 
   #higherUnits;

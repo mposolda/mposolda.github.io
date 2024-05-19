@@ -18,16 +18,17 @@ class WeightsExampleFactory {
       level = 1;
     } else if (state.errors * 3 >= state.ok) {
       level = 2;
-    } else if (state.errors > 1) {
-      level = 3;
+//    } else if (state.errors > 1) {
+//      level = 3;
     } else if (state.errors == 1) {
-      level = 4;
-    } else if (state.errors == 0 && state.totalTime > (state.examples.length * 32)) {
+//      level = 4;
       level = 5;
-    } else if (state.errors == 0 && state.totalTime > (state.examples.length * 20)) {
-      level = 6;
-    } else if (state.errors == 0 && state.totalTime > (state.examples.length * 10)) {
-      level = 7;
+//    } else if (state.errors == 0 && state.totalTime > (state.examples.length * 32)) {
+//      level = 5;
+//    } else if (state.errors == 0 && state.totalTime > (state.examples.length * 20)) {
+//      level = 6;
+//    } else if (state.errors == 0 && state.totalTime > (state.examples.length * 10)) {
+//      level = 7;
     } else {
       level = 8;
     }

@@ -2,7 +2,7 @@ class ExampleFactory {
 
   // Creating "example" of this factory
   createExample() {
-    return null;
+    throw new Error('Not possible to create example as createExample() is undefined');
   }
 
   // Compute "level" from the results. This is triggered after computation is fully finished

@@ -49,12 +49,21 @@ class ConfigProvider {
 
     config.setExampleType(exampleType);
     config.setPictureType(pictureType);
-    var exampleFactory = exampleType === 'smallMultiplication' ? new SmallMultiplicationExampleFactory() : new WeightsExampleFactory();
+    var exampleFactory = this.#getExampleFactory(exampleType);
     config.setExampleFactory(exampleFactory);
     config.setExamplesCount(exampleFactory.getDefaultExamplesCount());
 
     console.log("Configuration confirmed: " + config.toString());
     mather.startMe();
+  }
+
+  #getExampleFactory(exampleType) {
+    switch (exampleType) {
+      case 'smallMultiplication': return new SmallMultiplicationExampleFactory();
+      case 'weights': return new WeightsExampleFactory();
+      case 'arithmetic4thClass': return new Arithmetic4thClassFactory();
+      default: throw new Error('Unknown example type: ' + exampleType);
+    }
   }
 
   #getSelectedExampleType() {

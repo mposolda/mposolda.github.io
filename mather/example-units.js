@@ -41,7 +41,7 @@ class WeightsExampleFactory extends ExampleFactory {
   }
 }
 
-// Example for weights
+// Example for conversion of weights from various units to different units
 class WeightsExample extends Example {
 
   #higherUnits;

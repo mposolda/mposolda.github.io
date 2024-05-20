@@ -2,7 +2,13 @@ class Arithmetic4thClassFactory extends ExampleFactory {
 
   createExample() {
     var operationType = randomNumber(1, 4);
-    
+    switch (operationType) {
+      case 1: return new Add4thClassExample();
+      case 2: return new Subtract4thClassExample();
+      case 3: return new Multiply4thClassExample();
+      case 4: return new Divide4thClassExample();
+      default: throw new Error('Strange value of operationType: ' + operationType);
+    }
   }
 
   getLevelFromState(state) {
@@ -25,45 +31,70 @@ class Arithmetic4thClassFactory extends ExampleFactory {
   }
 }
 
-// Example for conversion of weights from various units to different units
-//class WeightsExample extends Example {
-//
-//  #higherUnits;
-//  #higherUnitsCount;
-//  #smallerUnits;
-//  #smallerUnitsCount;
-//  #direction;
-//
-//  constructor() {
-//    super();
-//
-//    // Generate g, dag, kg or t
-//    this.#higherUnits = randomNumber(1, 4);
-//
-//    this.#higherUnitsCount = randomNumber(1, 9);
-//
-//    // Higher units can be either something like "8" or "80"
-//    if (randomNumber(0, 1) === 1) {
-//      this.#higherUnitsCount = this.#higherUnitsCount * 10;
-//    }
-//
-//    // Generate smaller units. Can be either 1 or 2 degrees below
-//    this.#smallerUnits = this.#higherUnits === 1 ? 0 : this.#higherUnits - randomNumber(1, 2);
-//
-//    this.#smallerUnitsCount = weights[this.#higherUnits].toSmallest * this.#higherUnitsCount / weights[this.#smallerUnits].toSmallest;
-//
-//    // Whether the example is to convert smaller to bigger units OR bigger to smaller units
-//    this.#direction = randomNumber(0, 1);
-//
-//    if (this.#direction === 0) {
-//      this.result = this.#higherUnitsCount;
-//      this.asStr = this.#smallerUnitsCount + ' ' + weights[this.#smallerUnits].type + ' = ';
-//      this.asStrAfter = ' ' + weights[this.#higherUnits].type;
-//    } else {
-//      this.result = this.#smallerUnitsCount;
-//      this.asStr = this.#higherUnitsCount + ' ' + weights[this.#higherUnits].type + ' = ';
-//      this.asStrAfter = ' ' + weights[this.#smallerUnits].type;
-//    }
-//  }
-//
-//}
+class Add4thClassExample extends Example {
+
+  #x; // 1st number
+  #y; // 2nd number
+
+  constructor() {
+    super();
+
+    this.#x = randomNumber(2, 9999);
+    this.#y = randomNumber(2, 9999);
+
+    this.result = this.#x + this.#y;
+    this.asStr = this.#x + ' + ' + this.#y + ' = ';
+  }
+}
+
+class Subtract4thClassExample extends Example {
+
+  #x; // 1st number
+  #y; // 2nd number
+
+  constructor() {
+    super();
+
+    this.#x = randomNumber(2, 15000);
+    this.#y = randomNumber(2, this.#x);
+
+    this.result = this.#x - this.#y;
+    this.asStr = this.#x + ' - ' + this.#y + ' = ';
+  }
+}
+
+class Multiply4thClassExample extends Example {
+
+  #x; // 1st number
+  #y; // 2nd number
+
+  constructor() {
+    super();
+
+    this.#x = randomNumber(2, 999);
+    this.#y = randomNumber(2, 99);
+
+    this.result = this.#x * this.#y;
+    this.asStr = this.#x + ' * ' + this.#y + ' = ';
+  }
+}
+
+class Divide4thClassExample extends Example {
+
+  #x; // 1st number
+  #y; // 2nd number
+
+  constructor() {
+    super();
+
+    this.#x = 123;
+    this.#y = 456;
+    while (this.#x % this.#y != 0) {
+      this.#x = randomNumber(2, 9999);
+      this.#y = randomNumber(2, 9);
+    }
+
+    this.result = this.#x / this.#y;
+    this.asStr = this.#x + ' : ' + this.#y + ' = ';
+  }
+}

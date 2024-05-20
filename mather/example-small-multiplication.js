@@ -42,8 +42,6 @@ class SmallMultiplicationExample extends Example {
   // 0 is multiply, 1 is divide
   #sign;
 
-  result;
-
   constructor() {
     super();
 

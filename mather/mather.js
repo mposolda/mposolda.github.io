@@ -37,29 +37,24 @@ var getPicture = function(level) {
   return pictures[level - 1];
 }
 
-            var state = {
-                counter: 0,
-                ok: 0,
-                errors: 0,
-                totalTime: null, // Filled once whole exam is finished
-                examples: []
-            };
+var state = {
+  counter: 0,
+  ok: 0,
+  errors: 0,
+  totalTime: null, // Filled once whole exam is finished
+  examples: []
+};
 
-            var currentExample = null;
+var currentExample = null;
 
-            // Random number from 2 to 10
-            var randomNumber = function(from, to) {
-                return from + Math.floor(Math.random() * (to - from + 1));
-            }
+// Random number from 2 to 10
+var randomNumber = function(from, to) {
+  return from + Math.floor(Math.random() * (to - from + 1));
+}
 
-            var getTimestampInSeconds = function() {
-                return Math.floor(Date.now() / 1000)
-            }
-
-            // Multiply or divide
-            var randomSign = function() {
-                return Math.floor(Math.random() * 2);
-            }
+var getTimestampInSeconds = function() {
+  return Math.floor(Date.now() / 1000)
+}
 
 
             // Create new example now
@@ -120,50 +115,51 @@ var getPicture = function(level) {
             }
 
 
-            // Executed when "Enter" is pressed.
-            var onEnterKey = function() {
-                console.log('Enter was pressed. Example input: ' + document.getElementById('exampleInput').value);
-
-                // Evaluate and push current example
-                currentExample.usedResult = document.getElementById('exampleInput').value;
-                currentExample.time = getTimestampInSeconds() - currentExample.startTime;
-                currentExample.goodResult = currentExample.result == currentExample.usedResult;
-
-                if (currentExample.goodResult) {
-                    state.ok += 1;
-                } else {
-                    state.errors += 1;
-                }
-
-                state.examples.push(currentExample);
-
-                document.getElementById('examplesTable').innerHTML = renderTable();
-
-                // Check if we're already finished. If yes, render summary. If not, create new example
-                if (state.counter === config.getExamplesCount()) {
-                    state.totalTime = getTimestampInSeconds() - state.examples[0].startTime;
-                    renderSummary();
-                } else {
-                    restartExample();
-                }
-            }
-
-
 class Mather {
 
   startMe() {
     document.getElementById('configArea').style = 'display: none';
     document.getElementById('example').style = 'display: inline';
 
-                document.getElementById('exampleInput').addEventListener("keypress", function(event) {
-                    if (event.key === "Enter") {
-                        onEnterKey();
-                    } else if (event.key >= "0" && event.key <= "9") {
-                        //document.getElementById('exampleInput').value = document.getElementById('exampleInput').value + event.key;
-                    }
-                });
+    var helperMather = this;
 
-                restartExample();
+    document.getElementById('exampleInput').addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+        helperMather.#onEnterKey();
+      } else if (event.key >= "0" && event.key <= "9") {
+        //document.getElementById('exampleInput').value = document.getElementById('exampleInput').value + event.key;
+      }
+    });
+
+    restartExample();
+  }
+
+  // Executed when "Enter" is pressed.
+  #onEnterKey() {
+    console.log('Enter was pressed. Example input: ' + document.getElementById('exampleInput').value);
+
+    // Evaluate and push current example
+    currentExample.usedResult = document.getElementById('exampleInput').value;
+    currentExample.time = getTimestampInSeconds() - currentExample.startTime;
+    currentExample.goodResult = currentExample.result == currentExample.usedResult;
+
+    if (currentExample.goodResult) {
+      state.ok += 1;
+    } else {
+      state.errors += 1;
+    }
+
+    state.examples.push(currentExample);
+
+    document.getElementById('examplesTable').innerHTML = renderTable();
+
+    // Check if we're already finished. If yes, render summary. If not, create new example
+    if (state.counter === config.getExamplesCount()) {
+      state.totalTime = getTimestampInSeconds() - state.examples[0].startTime;
+      renderSummary();
+    } else {
+      restartExample();
+    }
   }
 
 }

@@ -32,11 +32,6 @@ var PICTURES_RABBITS = [
   "rabbits/08_tonda.jpg"
 ];
 
-var getPicture = function(level) {
-  var pictures = config.getPictureType() == "picturesCars" ? PICTURES_CARS : PICTURES_RABBITS;
-  return pictures[level - 1];
-}
-
 var state = {
   counter: 0,
   ok: 0,
@@ -57,64 +52,6 @@ var getTimestampInSeconds = function() {
 }
 
 
-            // Create new example now
-            var restartExample = function() {
-                state.counter += 1;
-
-                currentExample = config.getExampleFactory().createExample();
-
-
-                console.log('New example created: ' + currentExample.asStr + "_" + currentExample.asStrAfter);
-
-                document.getElementById('counter').innerHTML = 'Příklad ' + state.counter;
-                document.getElementById('exampleText').innerHTML = currentExample.asStr;
-                document.getElementById('exampleTextAfter').innerHTML = currentExample.asStrAfter;
-
-                var myInput = document.getElementById('exampleInput');
-                myInput.value = '';
-                myInput.focus();
-            }
-
-            var renderTable = function() {
-                var str = '<table border><tr><th>Příklad</th><th>Správný výsledek</th><th>Napsaný výsledek</th><th></th></tr>';
-                var len = state.examples.length;
-                for (let i = 0; i < len; i++) {
-                    var ex = state.examples[i];
-                    str += "<tr>";
-                    str += "<td>" + ex.asStr + "_" + ex.asStrAfter + "</td>";
-                    str += "<td>" + ex.result + "</td>";
-
-                    str += "<td>" + ex.usedResult + "</td>";
-
-                    var okState = ex.goodResult ? "OK" : "CHYBA";
-                    var bgColor = ex.goodResult ? "#66ff66" : "#ff6666";
-                    str += '<td style="background-color: ' + bgColor + '">' + okState + "</td>";
-
-                    str += "</tr>";
-                }
-                str += '</table>';
-                return str;
-            }
-
-            var renderSummary = function() {
-                var level = config.getExampleFactory().getLevelFromState(state);
-                var picture = getPicture(level);
-                console.log("Picture: " + picture);
-                var evaluation = EVALUATION_TEXTS[level - 1];
-
-                // Hide the example. Exam is finished
-                document.getElementById('example').style = 'display: none';
-
-                var str = "<br />";
-                str += '<img src="' + picture + '" style="width: 60%"></img><br />';
-                str += "<b>Level " + level + " z 8.<br />";
-                str += "<b>Správně: " + state.ok + "<br />";
-                str += "Chyby: " + state.errors + "<br />";
-                str += "</b>";
-                document.getElementById('summary').innerHTML = str;
-            }
-
-
 class Mather {
 
   startMe() {
@@ -131,7 +68,7 @@ class Mather {
       }
     });
 
-    restartExample();
+    this.#restartExample();
   }
 
   // Executed when "Enter" is pressed.
@@ -151,15 +88,76 @@ class Mather {
 
     state.examples.push(currentExample);
 
-    document.getElementById('examplesTable').innerHTML = renderTable();
+    document.getElementById('examplesTable').innerHTML = this.#renderTable();
 
     // Check if we're already finished. If yes, render summary. If not, create new example
     if (state.counter === config.getExamplesCount()) {
       state.totalTime = getTimestampInSeconds() - state.examples[0].startTime;
-      renderSummary();
+      this.#renderSummary();
     } else {
-      restartExample();
+      this.#restartExample();
     }
+  }
+
+  // Create new example now
+  #restartExample() {
+    state.counter += 1;
+
+    currentExample = config.getExampleFactory().createExample();
+
+    console.log('New example created: ' + currentExample.asStr + "_" + currentExample.asStrAfter);
+
+    document.getElementById('counter').innerHTML = 'Příklad ' + state.counter;
+    document.getElementById('exampleText').innerHTML = currentExample.asStr;
+    document.getElementById('exampleTextAfter').innerHTML = currentExample.asStrAfter;
+
+    var myInput = document.getElementById('exampleInput');
+    myInput.value = '';
+    myInput.focus();
+  }
+
+  #renderTable() {
+    var str = '<table border><tr><th>Příklad</th><th>Správný výsledek</th><th>Napsaný výsledek</th><th></th></tr>';
+    var len = state.examples.length;
+    for (let i = 0; i < len; i++) {
+      var ex = state.examples[i];
+      str += "<tr>";
+      str += "<td>" + ex.asStr + "_" + ex.asStrAfter + "</td>";
+      str += "<td>" + ex.result + "</td>";
+
+      str += "<td>" + ex.usedResult + "</td>";
+
+      var okState = ex.goodResult ? "OK" : "CHYBA";
+      var bgColor = ex.goodResult ? "#66ff66" : "#ff6666";
+      str += '<td style="background-color: ' + bgColor + '">' + okState + "</td>";
+
+      str += "</tr>";
+    }
+    str += '</table>';
+    return str;
+  }
+
+  #renderSummary() {
+    var level = config.getExampleFactory().getLevelFromState(state);
+    var picture = this.#getPicture(level);
+    console.log("Picture: " + picture);
+    var evaluation = EVALUATION_TEXTS[level - 1];
+
+    // Hide the example. Exam is finished
+    document.getElementById('example').style = 'display: none';
+
+    var str = "<br />";
+    str += '<img src="' + picture + '" style="width: 60%"></img><br />';
+    str += "<b>Level " + level + " z 8.<br />";
+    str += "<b>Správně: " + state.ok + "<br />";
+    str += "Chyby: " + state.errors + "<br />";
+    str += "</b>";
+    document.getElementById('summary').innerHTML = str;
+  }
+
+  #getPicture(level) {
+    var pictures = config.getPictureType() == "picturesCars" ? PICTURES_CARS : PICTURES_RABBITS;
+    return pictures[level - 1];
   }
 
 }

@@ -40,4 +40,10 @@ class Example {
   // String representation after the example
   asStrAfter = '';
 
+  // Possibly do something with the 'usedResult' to convert it into friendly format, which can be considered as good result. For instance for "Rome numbers" example,
+  // adding rome numbers in lowercase like 'mdc' is still considered as a good result (even if it should be strictly 'MDC')
+  convertUsedResult() {
+    return this.usedResult;
+  }
+
 }

@@ -77,6 +77,7 @@ class Mather {
 
     // Evaluate and push current example
     currentExample.usedResult = document.getElementById('exampleInput').value;
+    currentExample.usedResult = currentExample.convertUsedResult();
     currentExample.time = getTimestampInSeconds() - currentExample.startTime;
     currentExample.goodResult = currentExample.result == currentExample.usedResult;
 

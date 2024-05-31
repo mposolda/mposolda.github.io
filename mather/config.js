@@ -62,6 +62,7 @@ class ConfigProvider {
       case 'smallMultiplication': return new SmallMultiplicationExampleFactory();
       case 'weights': return new WeightsExampleFactory();
       case 'arithmetic4thClass': return new Arithmetic4thClassFactory();
+      case 'romeNumbers': return new RomeNumbersClassFactory();
       default: throw new Error('Unknown example type: ' + exampleType);
     }
   }

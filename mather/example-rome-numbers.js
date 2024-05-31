@@ -29,8 +29,6 @@ class RomeNumbersExample extends Example {
   constructor() {
     super();
 
-    var x = randomNumber(1, 1500);
-
     var x1 = randomNumber(0, 1);
     var x2 = randomNumber(0, 9);
     var x3 = randomNumber(0, 9);

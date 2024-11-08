@@ -4,11 +4,33 @@ var weights = [
   { type: "dag", toSmallest: 10000 },
   { type: "kg", toSmallest:  1000000 },
   { type: "t", toSmallest:   1000000000 }
-]
+];
 
-class WeightsExampleFactory extends ExampleFactory {
+var lengths = [
+  { type: "mm", toSmallest:  1 },
+  { type: "cm", toSmallest:  10 },
+  { type: "dm", toSmallest:  100 },
+  { type: "m", toSmallest:   1000 },
+  { type: "km", toSmallest:  1000000 }
+];
+
+var volumes = [
+  { type: "ml", toSmallest: 1 },
+  { type: "dl", toSmallest: 100 },
+  { type: "l", toSmallest:  1000 },
+  { type: "hl", toSmallest: 100000 }
+];
+
+class UnitsExampleFactory extends ExampleFactory {
 
   createExample() {
+    var unitsType = randomNumber(1, 3);
+    switch (unitsType) {
+      case 1: return new UnitsExample(weights);
+      case 2: return new UnitsExample(lengths);
+      case 3: return new UnitsExample(volumes);
+      default: throw new Error('Strange value of unitsType: ' + operationType);
+    }
     return new WeightsExample();
   }
 
@@ -32,7 +54,7 @@ class WeightsExampleFactory extends ExampleFactory {
     } else {
       level = 8;
     }
-    console.log("Weights: Computed level " + level);
+    console.log("Units: Computed level " + level);
     return level;
   }
 
@@ -41,8 +63,8 @@ class WeightsExampleFactory extends ExampleFactory {
   }
 }
 
-// Example for conversion of weights from various units to different units
-class WeightsExample extends Example {
+// Example for conversion of weights, lengths or volumes from various units to different units
+class UnitsExample extends Example {
 
   #higherUnits;
   #higherUnitsCount;
@@ -50,7 +72,7 @@ class WeightsExample extends Example {
   #smallerUnitsCount;
   #direction;
 
-  constructor() {
+  constructor(units) {
     super();
 
     // Generate g, dag, kg or t
@@ -66,19 +88,19 @@ class WeightsExample extends Example {
     // Generate smaller units. Can be either 1 or 2 degrees below
     this.#smallerUnits = this.#higherUnits === 1 ? 0 : this.#higherUnits - randomNumber(1, 2);
 
-    this.#smallerUnitsCount = weights[this.#higherUnits].toSmallest * this.#higherUnitsCount / weights[this.#smallerUnits].toSmallest;
+    this.#smallerUnitsCount = units[this.#higherUnits].toSmallest * this.#higherUnitsCount / units[this.#smallerUnits].toSmallest;
 
     // Whether the example is to convert smaller to bigger units OR bigger to smaller units
     this.#direction = randomNumber(0, 1);
 
     if (this.#direction === 0) {
       this.result = this.#higherUnitsCount;
-      this.asStr = this.#smallerUnitsCount + ' ' + weights[this.#smallerUnits].type + ' = ';
-      this.asStrAfter = ' ' + weights[this.#higherUnits].type;
+      this.asStr = this.#smallerUnitsCount + ' ' + units[this.#smallerUnits].type + ' = ';
+      this.asStrAfter = ' ' + units[this.#higherUnits].type;
     } else {
       this.result = this.#smallerUnitsCount;
-      this.asStr = this.#higherUnitsCount + ' ' + weights[this.#higherUnits].type + ' = ';
-      this.asStrAfter = ' ' + weights[this.#smallerUnits].type;
+      this.asStr = this.#higherUnitsCount + ' ' + units[this.#higherUnits].type + ' = ';
+      this.asStrAfter = ' ' + units[this.#smallerUnits].type;
     }
   }
 

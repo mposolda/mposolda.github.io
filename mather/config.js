@@ -60,7 +60,7 @@ class ConfigProvider {
   #getExampleFactory(exampleType) {
     switch (exampleType) {
       case 'smallMultiplication': return new SmallMultiplicationExampleFactory();
-      case 'weights': return new WeightsExampleFactory();
+      case 'weights': return new UnitsExampleFactory();
       case 'arithmetic4thClass': return new Arithmetic4thClassFactory();
       case 'romeNumbers': return new RomeNumbersClassFactory();
       default: throw new Error('Unknown example type: ' + exampleType);

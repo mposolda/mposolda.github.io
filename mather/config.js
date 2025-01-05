@@ -63,6 +63,7 @@ class ConfigProvider {
       case 'weights': return new UnitsExampleFactory();
       case 'arithmetic4thClass': return new Arithmetic4thClassFactory();
       case 'romeNumbers': return new RomeNumbersClassFactory();
+      case 'brackets5thClass': return new Brackets5thClassFactory();
       default: throw new Error('Unknown example type: ' + exampleType);
     }
   }

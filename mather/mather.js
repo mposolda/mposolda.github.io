@@ -140,25 +140,41 @@ class Mather {
 
   #renderSummary() {
     var level = config.getExampleFactory().getLevelFromState(state);
-    var picture = this.#getPicture(level);
+    var pictureIndex = this.#getPictureIndexForLevel(level);
+
+    var pictures = config.getPictureType() == "picturesCars" ? PICTURES_CARS : PICTURES_RABBITS;
+    var picture = pictures[pictureIndex];
     console.log("Picture: " + picture);
-    var evaluation = EVALUATION_TEXTS[level - 1];
+    var evaluation = EVALUATION_TEXTS[pictureIndex]; // TODO: The texts are valid only for maxLevels 8 where time is taken into account
 
     // Hide the example. Exam is finished
     document.getElementById('example').style = 'display: none';
 
     var str = "<br />";
     str += '<img src="' + picture + '" style="width: 60%"></img><br />';
-    str += "<b>Level " + level + " z 8.<br />";
+    str += "<b>Level " + level + " z " + config.getExampleFactory().getLevelsCount() + ".<br />";
     str += "<b>Správně: " + state.ok + "<br />";
     str += "Chyby: " + state.errors + "<br />";
     str += "</b>";
     document.getElementById('summary').innerHTML = str;
   }
 
-  #getPicture(level) {
-    var pictures = config.getPictureType() == "picturesCars" ? PICTURES_CARS : PICTURES_RABBITS;
-    return pictures[level - 1];
+  #getPictureIndexForLevel(level) {
+    var levelsCount = config.getExampleFactory().getLevelsCount();
+    if (levelsCount == 8) {
+      return level - 1;
+    } else if (levelsCount == 5) {
+      switch (level) {
+        case 1: return 0;
+        case 2: return 1;
+        case 3: return 3;
+        case 4: return 5;
+        case 5: return 7;
+        default: throw new Error('Incorrect level: ' + level);
+      }
+    } else {
+      throw new Error("Unsupported mapping to levels for levels count: " + levelsCount);
+    }
   }
 
 }

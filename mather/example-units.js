@@ -34,33 +34,6 @@ class UnitsExampleFactory extends ExampleFactory {
     return new WeightsExample();
   }
 
-  getLevelFromState(state) {
-    var level;
-    if (state.errors >= state.ok) {
-      level = 1;
-    } else if (state.errors * 3 >= state.ok) {
-      level = 2;
-//    } else if (state.errors > 1) {
-//      level = 3;
-    } else if (state.errors == 1) {
-//      level = 4;
-      level = 5;
-//    } else if (state.errors == 0 && state.totalTime > (state.examples.length * 32)) {
-//      level = 5;
-//    } else if (state.errors == 0 && state.totalTime > (state.examples.length * 20)) {
-//      level = 6;
-//    } else if (state.errors == 0 && state.totalTime > (state.examples.length * 10)) {
-//      level = 7;
-    } else {
-      level = 8;
-    }
-    console.log("Units: Computed level " + level);
-    return level;
-  }
-
-  getDefaultExamplesCount() {
-    return 5;
-  }
 }
 
 // Example for conversion of weights, lengths or volumes from various units to different units

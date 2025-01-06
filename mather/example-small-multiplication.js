@@ -30,6 +30,10 @@ class SmallMultiplicationExampleFactory extends ExampleFactory {
   getDefaultExamplesCount() {
     return 10;
   }
+
+  getLevelsCount() {
+    return 8;
+  }
 }
 
 

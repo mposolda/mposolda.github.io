@@ -4,24 +4,6 @@ class RomeNumbersClassFactory extends ExampleFactory {
     return new RomeNumbersExample();
   }
 
-  getLevelFromState(state) {
-    var level;
-    if (state.errors >= state.ok) {
-      level = 1;
-    } else if (state.errors * 3 >= state.ok) {
-      level = 2;
-    } else if (state.errors == 1) {
-      level = 5;
-    } else {
-      level = 8;
-    }
-    console.log("RomeNumbersClass: Computed level " + level);
-    return level;
-  }
-
-  getDefaultExamplesCount() {
-    return 5;
-  }
 }
 
 class RomeNumbersExample extends Example {

@@ -5,14 +5,26 @@ class ExampleFactory {
     throw new Error('Not possible to create example as createExample() is undefined');
   }
 
-  // Compute "level" from the results. This is triggered after computation is fully finished
+  // Compute "level" from the results. This is triggered after computation is fully finished. The default assumes 5 levels
   getLevelFromState(state) {
-    return 1;
+    var level;
+    if (state.errors == 5) {
+      level = 1;
+    } else {
+      level = 5 - state.errors;
+    }
+    console.log("Computed level " + level);
+    return level;
   }
 
   // Default count of examples for this type
   getDefaultExamplesCount() {
-    return 2;
+    return 5;
+  }
+
+  // Count of levels for examples of this type
+  getLevelsCount() {
+    return 5;
   }
 }
 

@@ -64,6 +64,7 @@ class ConfigProvider {
       case 'arithmetic4thClass': return new Arithmetic4thClassFactory();
       case 'romeNumbers': return new RomeNumbersClassFactory();
       case 'brackets5thClass': return new Brackets5thClassFactory();
+      case 'decimals5thClass': return new Decimals5thClassFactory();
       default: throw new Error('Unknown example type: ' + exampleType);
     }
   }

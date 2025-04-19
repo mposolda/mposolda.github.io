@@ -1,12 +1,14 @@
 class Decimals5thClassFactory extends ExampleFactory {
 
   createExample() {
-    var operationType = randomNumber(1, 2); // TODO: Change 2nd number to 4 and implement multiply and divide
+//    return new Decimal5thClassMultipleDivideTensExample();
+    var operationType = randomNumber(1, 5);
     switch (operationType) {
       case 1: return new AddDecimals5thClassExample();
       case 2: return new SubtractDecimals5thClassExample();
-//      case 3: return new Multiply4thClassExample();
-//      case 4: return new Divide4thClassExample();
+      case 3: return new MultiplyDecimal5thClassExample();
+      case 4: return new DivideDecimal5thClassExample();
+      case 5: return new Decimal5thClassMultipleDivideTensExample();
       default: throw new Error('Strange value of operationType: ' + operationType);
     }
   }
@@ -73,38 +75,64 @@ class SubtractDecimals5thClassExample extends AbstractDecimalsExample {
   }
 }
 
-//class Multiply4thClassExample extends Example {
-//
-//  #x; // 1st number
-//  #y; // 2nd number
-//
-//  constructor() {
-//    super();
-//
-//    this.#x = randomNumber(2, 999);
-//    this.#y = randomNumber(2, 99);
-//
-//    this.result = this.#x * this.#y;
-//    this.asStr = this.#x + ' * ' + this.#y + ' = ';
-//  }
-//}
-//
-//class Divide4thClassExample extends Example {
-//
-//  #x; // 1st number
-//  #y; // 2nd number
-//
-//  constructor() {
-//    super();
-//
-//    this.#x = 123;
-//    this.#y = 456;
-//    while (this.#x % this.#y != 0) {
-//      this.#x = randomNumber(2, 9999);
-//      this.#y = randomNumber(2, 9);
-//    }
-//
-//    this.result = this.#x / this.#y;
-//    this.asStr = this.#x + ' : ' + this.#y + ' = ';
-//  }
-//}
+class MultiplyDecimal5thClassExample extends AbstractDecimalsExample {
+
+  #x; // 1st number
+  #y; // 2nd number
+
+  constructor() {
+    super();
+
+    this.#x = this.generateDecimalNumber(2, 999, 4);
+    this.#y = randomNumber(2, 99);
+
+    this.result = this.round(this.#x * this.#y);
+    this.asStr = (this.#x + ' * ' + this.#y + ' = ').replaceAll(".", ",");
+  }
+}
+
+class DivideDecimal5thClassExample extends AbstractDecimalsExample {
+
+  #x; // 1st number
+  #y; // 2nd number
+
+  constructor() {
+    super();
+
+    this.#x = this.generateDecimalNumber(2, 999, 2);
+    this.#y = randomNumber(2, 9);
+
+    this.result = this.round(this.#x / this.#y);
+    this.asStr = (this.#x + ' : ' + this.#y + ' = ').replaceAll(".", ",");
+  }
+
+  convertUsedResult() {
+    this.usedResult = this.usedResult.replaceAll(",", ".");
+    this.usedResult = Number(this.usedResult);
+    this.usedResult = this.round(this.usedResult);
+    return this.usedResult;
+  }
+
+}
+
+class Decimal5thClassMultipleDivideTensExample extends AbstractDecimalsExample {
+
+  #x; // 1st number
+  #y; // 2nd number
+
+  constructor() {
+    super();
+
+    this.#x = this.generateDecimalNumber(2, 999, 2);
+    this.#y = 10 ** randomNumber(1, 3);
+
+    var operationType = randomNumber(1, 2);
+    if (operationType == 1) {
+      this.result = this.round(this.#x * this.#y);
+      this.asStr = (this.#x + ' * ' + this.#y + ' = ').replaceAll(".", ",");
+    } else {
+      this.result = this.round(this.#x / this.#y);
+      this.asStr = (this.#x + ' : ' + this.#y + ' = ').replaceAll(".", ",");
+    }
+  }
+}

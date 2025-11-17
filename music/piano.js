@@ -42,7 +42,8 @@ var songs = {
         "name": "Amelie z Montmartru"
       },
       {
-        "name": "Cajkovsky - Swan Lake"
+        "name": "Cajkovsky - Swan Lake",
+        "links": [ "notes/swanLake1.jpg", "notes/swanLake2.jpg" ]
       },
       {
         "name": "Nights in white satin"
@@ -68,7 +69,8 @@ var songs = {
         "name": "Twist and shout"
       },
       {
-        "name": "Adele"
+        "name": "Adele",
+        "links": [ "notes/adele-bridge.jpg" ]
       },
       {
         "name": "Elan - Kocka",
@@ -81,7 +83,8 @@ var songs = {
         "name": "Lady Madonna"
       },
       {
-        "name": "Coldplay - Clocks"
+        "name": "Coldplay - Clocks",
+        "links": [ "notes/clocks1.jpg", "notes/clocks2.jpg" ]
       },
       {
         "name": "Elton John - I am still standing"
@@ -96,7 +99,8 @@ var songs = {
         "name": "Kamil (remove after some time)"
       },
       {
-        "name": "Kamila Kabelo"
+        "name": "Kamila Kabelo - Havana",
+        "links": [ "notes/havana.jpg" ]
       },
       {
         "name": "Procol Harum"
@@ -104,7 +108,7 @@ var songs = {
     ]
   },
   "todo": {
-    "title": "todo",
+    "title": "Todo",
     "groupSongs": [
       {
         "name": "Dance Monkey"
@@ -172,11 +176,21 @@ class Piano {
 
   #renderSongs(songs, groupTitle) {
     var currentGroup = songs[groupTitle];
-    var str = "<div id=\"" + groupTitle + "\"><h2>" + currentGroup.title + "</h2><ul>";
+    var str = "<h2>" + currentGroup.title + "</h2><ul>";
     var len = currentGroup.groupSongs.length;
     for (let i = 0; i < len; i++) {
       var song = currentGroup.groupSongs[i];
-      str += "<li>" + song.name + "</li>";
+      str += "<li>" + song.name;
+
+      if (song.links) {
+        var len2 = song.links.length;
+        str += " - ";
+        for (let j = 0; j < len2; j++) {
+          str += "<a href=\"" + song.links[j] + "\">" + (j + 1) + "</a> ";
+        }
+      }
+
+      str += "</li>";
     }
     str += "</ul>";
     return str;

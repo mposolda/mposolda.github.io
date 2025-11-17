@@ -30,7 +30,7 @@ var songs = {
         "name": "Lady Gaga & Bradley Cooper"
       },
       {
-        "name": "Doors - Crystal ship<"
+        "name": "Doors - Crystal ship"
       },
       {
         "name": "Queen - We are the champions"
@@ -165,6 +165,9 @@ var songs = {
   }
 };
 
+var randomNumber = function(from, to) {
+  return from + Math.floor(Math.random() * (to - from + 1));
+}
 
 class Piano {
 
@@ -172,6 +175,19 @@ class Piano {
     document.getElementById('done').innerHTML = this.#renderSongs(songs, "done");
     document.getElementById('inProgress').innerHTML = this.#renderSongs(songs, "inProgress");
     document.getElementById('todo').innerHTML = this.#renderSongs(songs, "todo");
+
+    this.generateRandomSong();
+  }
+
+  generateRandomSong() {
+    var len = songs.done.groupSongs.length;
+    var rand = randomNumber(1, len);
+    var songName = songs.done.groupSongs[rand - 1].name;
+    console.log("Random number: " + rand);
+    document.getElementById('randomSongTitle').innerHTML = songName;
+
+    // Just for testing
+    // this.#testRandomNumbers();
   }
 
   #renderSongs(songs, groupTitle) {
@@ -194,6 +210,21 @@ class Piano {
     }
     str += "</ul>";
     return str;
+  }
+
+  // Just to test random song generation. Not used in reality
+  #testRandomNumbers() {
+    var len = songs.done.groupSongs.length;
+    var keys = {};
+    for (let i = 1; i < (len + 1); i++) {
+      keys[i] = 0;
+    }
+    console.log(keys);
+    for (let i = 0; i < 1000; i++) {
+      var randd = randomNumber(1, len);
+      keys[randd] = keys[randd] + 1;
+    }
+    console.log(keys);
   }
 
 }

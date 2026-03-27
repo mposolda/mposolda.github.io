@@ -65,6 +65,7 @@ class ConfigProvider {
       case 'romeNumbers': return new RomeNumbersClassFactory();
       case 'brackets5thClass': return new Brackets5thClassFactory();
       case 'decimals5thClass': return new Decimals5thClassFactory();
+      case 'greatestCommonDivisor6thClass': return new GreatestCommonDivisorFactory();
       default: throw new Error('Unknown example type: ' + exampleType);
     }
   }

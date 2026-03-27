@@ -172,6 +172,13 @@ class Mather {
         case 5: return 7;
         default: throw new Error('Incorrect level: ' + level);
       }
+    } else if (levelsCount == 3) {
+      switch (level) {
+        case 1: return 0;
+        case 2: return 5;
+        case 3: return 7;
+        default: throw new Error('Incorrect level: ' + level);
+      }
     } else {
       throw new Error("Unsupported mapping to levels for levels count: " + levelsCount);
     }

@@ -49,6 +49,16 @@ var songs = {
         "name": "Nights in white satin"
       },
       {
+        "name": "Adele - someone like you",
+        "links": [ "notes/adele-bridge.jpg" ]
+      },
+      {
+        "name": "Canon D"
+      },
+      {
+        "name": "Kamil (remove after some time)"
+      },
+      {
         "name": "Moje - narez 1"
       },
       {
@@ -63,40 +73,36 @@ var songs = {
         "name": "Kiss - Beth"
       },
       {
-        "name": "Coldplay - full of stars"
+        "name": "Waterloo"
       },
       {
-        "name": "Twist and shout"
+        "name": "Amy Winehouse - Back to black"
       },
       {
-        "name": "Adele",
-        "links": [ "notes/adele-bridge.jpg" ]
-      },
-      {
-        "name": "Elan - Kocka",
-        "links": [ "https://pisnicky-akordy.cz/elan/kocka" ]
-      },
-      {
-        "name": "Canon D"
-      },
-      {
-        "name": "Lady Madonna"
+        "name": "Janis Joplin - Kozmic blues"
       },
       {
         "name": "Coldplay - Clocks",
         "links": [ "notes/clocks1.jpg", "notes/clocks2.jpg" ]
       },
       {
+        "name": "Coldplay - full of stars"
+      },
+      {
+        "name": "Twist and shout"
+      },
+      {
+        "name": "Elan - Kocka",
+        "links": [ "https://pisnicky-akordy.cz/elan/kocka" ]
+      },
+      {
+        "name": "Lady Madonna"
+      },
+      {
         "name": "Elton John - I am still standing"
       },
       {
-        "name": "Waterloo"
-      },
-      {
         "name": "Black Sabbath - changes"
-      },
-      {
-        "name": "Kamil (remove after some time)"
       },
       {
         "name": "Kamila Kabelo - Havana",

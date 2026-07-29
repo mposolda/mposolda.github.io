@@ -78,3 +78,9 @@ class UnitsExample extends Example {
   }
 
 }
+
+exampleRegistry.register({
+  id: 'weights',
+  label: 'Převody jednotek hmotnosti, délky a objemu',
+  factory: () => new UnitsExampleFactory()
+});

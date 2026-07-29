@@ -80,3 +80,9 @@ class Divide4thClassExample extends Example {
     this.asStr = this.#x + ' : ' + this.#y + ' = ';
   }
 }
+
+exampleRegistry.register({
+  id: 'arithmetic4thClass',
+  label: 'Sčítání, odčítání, násobení, dělení pro 4. třídu',
+  factory: () => new Arithmetic4thClassFactory()
+});

@@ -67,3 +67,9 @@ class GreatestCommonDivisorExample extends Example {
   }
 
 }
+
+exampleRegistry.register({
+  id: 'greatestCommonDivisor6thClass',
+  label: 'Největší společný dělitel, nejmenší společný násobek',
+  factory: () => new GreatestCommonDivisorFactory()
+});

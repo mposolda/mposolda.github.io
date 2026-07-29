@@ -70,3 +70,9 @@ class SmallMultiplicationExample extends Example {
   }
 
 }
+
+exampleRegistry.register({
+  id: 'smallMultiplication',
+  label: 'Malá násobilka',
+  factory: () => new SmallMultiplicationExampleFactory()
+});

@@ -4,6 +4,7 @@
 
         <script src="./config.js"></script>
         <script src="./example.js"></script>
+        <script src="./registry.js"></script>
         <script src="./example-small-multiplication.js"></script>
         <script src="./example-units.js"></script>
         <script src="./example-arithmetic-4th-class.js"></script>
@@ -18,20 +19,20 @@
 
       <div id="configArea">
           <p><b>Zvol typ příkladů: </b></p>
-          <input type="radio" id="smallMultiplication" name="examplesType" value="Malá násobilka" checked>
-          <label for="smallMultiplication">Malá násobilka</label><br>
-          <input type="radio" id="weights" name="examplesType" value="Převody jednotek hmotnosti">
-          <label for="weights">Převody jednotek hmotnosti, délky a objemu</label><br>
-          <input type="radio" id="arithmetic4thClass" name="examplesType" value="Sčítání, odčítání, násobení, dělení pro 4. třídu">
-          <label for="arithmetic4thClass">Sčítání, odčítání, násobení, dělení pro 4. třídu</label><br>
-          <input type="radio" id="romeNumbers" name="examplesType" value="Římská čísla">
-          <label for="romeNumbers">Římská čísla</label><br>
-          <input type="radio" id="brackets5thClass" name="examplesType" value="Počítání se závorkami pro 5. třídu">
-          <label for="brackets5thClass">Počítání se závorkami pro 5. třídu</label><br>
-          <input type="radio" id="decimals5thClass" name="examplesType" value="Desetinná čísla pro 5. třídu">
-          <label for="decimals5thClass">Desetinná čísla pro 5. třídu</label><br>
-          <input type="radio" id="greatestCommonDivisor6thClass" name="examplesType" value="Největší společný dělitel, nejmenší společný násobek">
-          <label for="greatestCommonDivisor6thClass">Největší společný dělitel, nejmenší společný násobek</label><br>
+          <div id="examplesTypeList"></div>
+          <script>
+            (function() {
+              var entries = exampleRegistry.getEntries();
+              var html = '';
+              for (var i = 0; i < entries.length; i++) {
+                var e = entries[i];
+                var checked = i === 0 ? ' checked' : '';
+                html += '<input type="radio" id="' + e.id + '" name="examplesType" value="' + e.label + '"' + checked + '>';
+                html += '<label for="' + e.id + '">' + e.label + '</label><br>';
+              }
+              document.getElementById('examplesTypeList').innerHTML = html;
+            })();
+          </script>
           <br />
           <p><b>Zvol obrázky pro vyhodnocení: </b></p>
           <input type="radio" id="picturesCars" name="picturesType" value="Auta" checked>

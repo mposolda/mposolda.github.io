@@ -136,3 +136,9 @@ class Decimal5thClassMultipleDivideTensExample extends AbstractDecimalsExample {
     }
   }
 }
+
+exampleRegistry.register({
+  id: 'decimals5thClass',
+  label: 'Desetinná čísla pro 5. třídu',
+  factory: () => new Decimals5thClassFactory()
+});

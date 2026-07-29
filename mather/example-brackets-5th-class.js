@@ -141,3 +141,9 @@ class BrackCompound5thClassExample extends Example {
     this.asStr = ex1.asStr + " " + sign + " " + ex2.asStr + " = ";
   }
 }
+
+exampleRegistry.register({
+  id: 'brackets5thClass',
+  label: 'Počítání se závorkami pro 5. třídu',
+  factory: () => new Brackets5thClassFactory()
+});

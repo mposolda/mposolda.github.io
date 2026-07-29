@@ -56,3 +56,9 @@ class RomeNumbersExample extends Example {
   }
 
 }
+
+exampleRegistry.register({
+  id: 'romeNumbers',
+  label: 'Římská čísla',
+  factory: () => new RomeNumbersClassFactory()
+});

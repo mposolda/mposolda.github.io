@@ -67,6 +67,10 @@ var songs = {
       {
         "name": "Por Una Cabeza - Tango",
         "links": [ "notes/por-una-cabezza_tango.txt" ]
+      },
+      {
+        "name": "November rain",
+        "links": [ "notes/november-rain.txt" ]
       }
     ]
   },
@@ -152,9 +156,6 @@ var songs = {
       },
       {
         "name": "Bridge over troubled water"
-      },
-      {
-        "name": "November rain"
       },
       {
         "name": "Pyramid song"

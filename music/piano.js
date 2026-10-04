@@ -63,6 +63,10 @@ var songs = {
       },
       {
         "name": "Moje - plouzacek 1"
+      },
+      {
+        "name": "Por Una Cabeza - Tango",
+        "links": [ "notes/por-una-cabezza_tango.txt" ]
       }
     ]
   },
